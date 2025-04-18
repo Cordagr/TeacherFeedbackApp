@@ -1,0 +1,4 @@
+node_modules
+backend/server.js
+backend/db.js
+src/firebase.js
