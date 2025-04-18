@@ -1,9 +1,6 @@
-node_modules
-backend/server.js
-backend/db.js
-src/firebase.js
-
+.env
 # amplify
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+node_modules
