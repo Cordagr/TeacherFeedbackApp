@@ -23,6 +23,11 @@ const studentProfileSchema = new mongoose.Schema({
     enum: ['Freshman', 'Sophomore', 'Junior', 'Senior'],
     required: true,
   },
+  email:
+  {
+    type: String,
+    required: true,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('StudentProfile', studentProfileSchema);

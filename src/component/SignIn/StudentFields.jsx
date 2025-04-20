@@ -1,153 +1,104 @@
+import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  Input,
-  Select,
-  Text,
-  useColorModeValue
-} from "@chakra-ui/react";
-import { CUIAutoComplete } from "chakra-ui-autocomplete";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase";
-import { addUser } from "../../utils";
-import MainDashboard from "../MainDashboard/MainDashboard";
+  Box, Input, Button, VStack, FormLabel, Heading, useToast,
+} from '@chakra-ui/react';
+import axios from 'axios';
+import { auth } from '../../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
-const majors = [
-  { value: "Computer Science", label: "Computer Science" },
-  { value: "Engineering", label: "Engineering" },
-  { value: "Biology", label: "Biology" },
-  { value: "Psychology", label: "Psychology" },
-  { value: "Literature", label: "Literature" },
-  { value: "Mathematics", label: "Mathematics" },
-  { value: "History", label: "History" },
-  { value: "Physics", label: "Physics" },
-  { value: "Business", label: "Business" },
-  { value: "Economics", label: "Economics" },
-  { value: "Undecided", label: "Undecided" }
-];
-
-export const StudentReviewForm = () => {
-  const [pickerItems, setPickerItems] = useState(majors);
-  const [selectedItems, setSelectedItems] = useState([]);
-
-  const [user] = useAuthState(auth);
-  const email = user?.email || "";
-  const photoUrl = user?.photoURL || "";
-  const [firstName, lastName] = user?.displayName?.split(" ") || ["", ""];
-
-  const [firstname, setFirstname] = useState(firstName);
-  const [lastname, setLastname] = useState(lastName);
-  const [state, setState] = useState("");
-  const [semester, setSemester] = useState("");
-  const [classFeedback, setClassFeedback] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [teacherName, setTeacherName] = useState(""); 
+const StudentReviewForm = () => {
   const navigate = useNavigate();
+  const toast = useToast();
+  const [userEmail, setUserEmail] = useState('');
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    major: '',
+    phone_number: '',
+    current_standing: '',
+  });
 
-  const handleCreateItem = (item) => {
-    setPickerItems((curr) => [...curr, item]);
-    setSelectedItems((curr) => [...curr, item]);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserEmail(user.email);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const handleSelectedItemsChange = (changes) => {
-    if (changes.selectedItems) {
-      setSelectedItems(changes.selectedItems);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const profileData = {
+      ...formData,
+      email: userEmail,
+    };
+
+    try {
+      await axios.post('http://localhost:3001/api/userProfile/registerUserProfile', profileData);
+      toast({
+        title: 'Profile Created',
+        description: 'Your profile has been successfully registered.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+      } catch (err) {
+      console.error('Error registering profile:', err);
+      toast({
+
+        title: 'Error',
+        description: 'Could not submit your profile.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
-  const handleSubmit = () => {
-    const majorList = selectedItems.map((item) => item.value);
-    const review = {
-      firstName: firstname,
-      lastName: lastname,
-      email,
-      phoneNumber,
-      state,
-      majorInterests: majorList,
-      semester,
-      teacherName,
-      classFeedback,
-      imageUrl: photoUrl,
-    };
-    console.log("Review Submitted: ", review);
-    addUser(review);
-    navigate("/dashboard");
-  };
-
   return (
-    <Box
-      borderColor="blackAlpha.50"
-      borderWidth="5px"
-      bg={useColorModeValue("gray.50", "inherit")}
-      minH="100vh"
-      py="12"
-      px={{ base: "4", lg: "8" }}
-      margin="1rem 1rem 6rem 1rem"
-    >
-      <Text fontSize="4xl">Welcome {firstname} {lastname}!</Text>
-
-      <FormControl id="state" isRequired margin="1rem 0rem 1rem 0rem">
-        <FormLabel>State</FormLabel>
-        <Select placeholder="Select state" onChange={(e) => setState(e.currentTarget.value)}>
-          <option>Alabama</option>
-          <option>Alaska</option>
-          <option>Arizona</option>
-          <option>California</option>
-          <option>Texas</option>
-          {/* Add the full list of states */}
-        </Select>
-      </FormControl>
-
-      <FormControl id="semester" isRequired margin="1rem 0rem 1rem 0rem">
-        <FormLabel>Semester</FormLabel>
-        <Select onChange={(e) => setSemester(e.currentTarget.value)}>
-          <option>Fall</option>
-          <option>Spring</option>
-          <option>Summer</option>
-        </Select>
-      </FormControl>
-
-      <FormControl id="teacherName" isRequired margin="1rem 0rem 1rem 0rem">
-        <FormLabel>Teacher Name</FormLabel>
-        <Input placeholder="Enter teacher's name" onChange={(e) => setTeacherName(e.currentTarget.value)} />
-      </FormControl>
-
-      <FormControl id="classFeedback" isRequired margin="1rem 0rem 1rem 0rem">
-        <FormLabel>Class Feedback</FormLabel>
-        <Input
-          placeholder="Provide feedback on the class"
-          onChange={(e) => setClassFeedback(e.currentTarget.value)}
-        />
-      </FormControl>
-
-      <CUIAutoComplete
-        margin="1rem 0rem 1rem 0rem"
-        label="Select your major interests"
-        placeholder="Start typing"
-        onCreateItem={handleCreateItem}
-        items={pickerItems}
-        selectedItems={selectedItems}
-        onSelectedItemsChange={handleSelectedItemsChange}
-      />
-
-      <FormControl id="phoneNumber" isRequired margin="1rem 0rem 1rem 0rem">
-        <FormLabel>Phone Number</FormLabel>
-        <Input
-          placeholder="(xxx) xxx-xxxx"
-          onChange={(e) => setPhoneNumber(e.currentTarget.value)}
-        />
-      </FormControl>
-
-      <Flex justifyContent="center">
-        <Button mt={4} onClick={handleSubmit} colorScheme="teal">
-          Submit Review
-        </Button>
-      </Flex>
+    <Box maxW="md" mx="auto" mt={10} p={6} borderWidth={1} borderRadius="xl" boxShadow="md">
+      <Heading size="lg" mb={6} textAlign="center">Complete Your Profile</Heading>
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={4}>
+          <Box w="100%">
+            <FormLabel>First Name</FormLabel>
+            <Input name="first_name" value={formData.first_name} onChange={handleChange} required />
+          </Box>
+          <Box w="100%">
+            <FormLabel>Last Name</FormLabel>
+            <Input name="last_name" value={formData.last_name} onChange={handleChange} required />
+          </Box>
+          <Box w="100%">
+            <FormLabel>Major</FormLabel>
+            <Input name="major" value={formData.major} onChange={handleChange} />
+          </Box>
+          <Box w="100%">
+            <FormLabel>Phone Number</FormLabel>
+            <Input name="phone_number" value={formData.phone_number} onChange={handleChange} />
+          </Box>
+          <Box w="100%">
+            <FormLabel>Current Standing</FormLabel>
+            <Input name="current_standing" value={formData.current_standing} onChange={handleChange} />
+          </Box>
+          <Button colorScheme="teal" type="submit" w="full">Submit Profile</Button>
+        </VStack>
+      </form>
     </Box>
   );
 };
+
+export default StudentReviewForm;

@@ -1,33 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Button, FormControl, FormLabel, Input, Heading, Text, VStack, useToast
+  Box, Button, FormControl, FormLabel, Input, Heading, Text, VStack, useToast, Spinner
 } from '@chakra-ui/react';
 import { signInWithEmailAndPassword as firebaseSignIn, onAuthStateChanged } from 'firebase/auth';
 import { auth, signInWithGoogle } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { AccountType } from '../SignIn/AccountType';
 import { LoginFields } from '../SignIn/LoginFields';
-import { StudentReviewForm } from './StudentFields';
+import StudentReviewForm from './StudentFields';
 import CollegeFields from './CollegeFields';
-
-
-
 
 const SignIn = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0); // Start from login page
+  const [page, setPage] = useState(0); // 0 = login, 1 = account type, etc.
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check if user is signed in
+  // Check if user is already signed in and has a profile
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+
+      if (currentUser) {
+        try {
+          const res = await fetch(`http://localhost:3001/api/userProfile/getUserProfileStatus/${currentUser.email}`);
+          const data = await res.json();
+
+          if (data.exists) {
+            navigate('/dashboard');
+          }
+        } catch (err) {
+          console.error("Error checking profile:", err);
+        }
+      }
+
+      setLoading(false); // stop showing loading screen
     });
+
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -45,7 +58,7 @@ const SignIn = () => {
         duration: 3000,
         isClosable: true,
       });
-      setPage(1); // Go to next page
+      setPage(1); // Go to next step
     } catch (error) {
       toast({
         title: "Sign-in failed.",
@@ -82,8 +95,16 @@ const SignIn = () => {
     setLoading(false);
   };
 
-  // Protect access to steps 1, 2, 3
   const isLoggedIn = !!user;
+
+  // Show loading spinner while checking auth/profile
+  if (loading) {
+    return (
+      <Box minH="100vh" display="flex" justifyContent="center" alignItems="center" bg="gray.100">
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
 
   return (
     <Box minH="100vh" display="flex" justifyContent="center" alignItems="center" bg="gray.100">
@@ -126,7 +147,10 @@ const SignIn = () => {
             </Button>
 
             <Text fontSize="sm">
-              Don't have an account? <Button variant="link" colorScheme="blue" onClick={() => navigate('/signup')}>Sign Up</Button>
+              Don't have an account?{' '}
+              <Button variant="link" colorScheme="blue" onClick={() => navigate('/signup')}>
+                Sign Up
+              </Button>
             </Text>
           </VStack>
         )
