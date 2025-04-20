@@ -4,63 +4,58 @@ import {
   Heading,
   Text,
   VStack,
-  HStack,
+  Stack,
   Divider,
   Button,
-  Stack,
+  Spinner,
 } from '@chakra-ui/react';
+import axios from 'axios';
+import { getAuth } from 'firebase/auth';
 
 const ClassDashboard = () => {
   const [feedbackData, setFeedbackData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Example feedback data (you would typically fetch this from your backend)
   useEffect(() => {
-    const fetchedFeedback = [
-      {
-        classId: 1,
-        classTitle: 'Calculus I',
-        teacherName: 'Mr. Anderson',
-        feedback: [
-          {
-            studentName: 'John Doe',
-            teachingRating: 4,
-            engagementRating: 5,
-            classRating: 4,
-            comments: 'Great class, very engaging!',
-          },
-          {
-            studentName: 'Jane Smith',
-            teachingRating: 3,
-            engagementRating: 4,
-            classRating: 4,
-            comments: 'The class was good, but I think more examples would help.',
-          },
-        ],
-      },
-      {
-        classId: 2,
-        classTitle: 'Introduction to Psychology',
-        teacherName: 'Ms. Carter',
-        feedback: [
-          {
-            studentName: 'Sarah Lee',
-            teachingRating: 5,
-            engagementRating: 5,
-            classRating: 5,
-            comments: 'Fantastic teacher! Very interactive and helpful.',
-          },
-        ],
-      },
-    ];
+    const fetchFeedback = async () => {
+      try {
+        const auth = getAuth();
+        const user = auth.currentUser;
 
-    // Simulate fetching feedback from a backend
-    setFeedbackData(fetchedFeedback);
+        if (!user) {
+          console.log('No user logged in');
+          return;
+        }
+
+        const email = user.email;
+
+        // To update //
+        const response = await axios.get(
+          `https://your-backend-api.com/api/classrooms?email=${email}`
+        );
+
+        setFeedbackData(response.data);
+      } catch (error) {
+        console.error('Failed to fetch feedback', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeedback();
   }, []);
+
+  if (loading) {
+    return <Spinner size="xl" thickness="4px" speed="0.65s" color="teal.500" />;
+  }
 
   return (
     <Box p={6}>
       <Heading mb={6}>Class Dashboard</Heading>
       <VStack spacing={8} align="stretch">
+        {feedbackData.length === 0 && (
+          <Text fontSize="lg">You are not part of any classrooms yet.</Text>
+        )}
         {feedbackData.map((classFeedback) => (
           <Box key={classFeedback.classId} borderWidth="1px" borderRadius="lg" p={5}>
             <Heading size="md" mb={4}>

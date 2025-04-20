@@ -111,6 +111,7 @@ function App() {
         <Route path="/student" element={<StudentRateDashboard />} />
         <Route path="/dashboard" element={<MainDashboard/>} />
         <Route path="StudentDashboard" element={<StudentRateDashboard />} />
+        <Route path ="ClassDashboard" element={<ClassDashboard />} />
       </Routes>
     </ChakraProvider>
   );

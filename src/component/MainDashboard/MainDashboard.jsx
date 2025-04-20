@@ -33,7 +33,7 @@ const MainDashboard = () => {
       </Text>
 
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={5} mt={6}>
-        <Button as={Link} to="/StudentDashboard" size="lg" colorScheme="teal">
+        <Button as={Link} to="/ClassDashboard" size="lg" colorScheme="teal">
           Student Dashboard
         </Button>
         <Button as={Link} to="/profile" size="lg" colorScheme="purple">
