@@ -8,36 +8,30 @@ const generateInviteCode = () => crypto.randomBytes(4).toString('hex');
 
 
 classroomRouter.post('/createClassroom', async (req, res) => {
-  const { name, email } = req.body;
-
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and teacher email are required' });
-  }
-
-  const inviteCode = generateInviteCode();
-
   try {
+    const { teacherName, ownerTeacherEmail, meetingDays, meetingTimes } = req.body;
+
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
     const classroom = new Classroom({
-      name,
-      teacherEmail: email,
+      teacherName,
+      ownerTeacherEmail,
       inviteCode,
-      students: []
+      meetingDays,
+      meetingTimes,
     });
 
     await classroom.save();
 
-    res.status(201).json({
-      message: 'Classroom created successfully',
-      inviteLink: `https://teacherFeedbackApp/join/${inviteCode}`,
-      classroom
-    });
+    const inviteLink = `http://localhost:3000/join/${inviteCode}`;
 
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create classroom' });
+    res.status(200).json({ classroom, inviteLink });
+  } catch (error) {
+    console.error('Error creating classroom:', error);
+    res.status(400).json({ error: 'Failed to create classroom' });
   }
 });
+
 
 classroomRouter.post('/joinClassroom', async (req, res) => {
   const { email, inviteCode } = req.body;

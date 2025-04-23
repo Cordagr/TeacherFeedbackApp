@@ -33,7 +33,7 @@ const userProfileRouter = require('./routes/userProfile');
 app.use('/api/userProfile', userProfileRouter);
 
 const classroomRouter = require('./routes/classroom')
-app.use('/api/classroom', classroomRouter);
+app.use('/api/teacherActions', classroomRouter);
 
 
 // Connect Redis using environment variables

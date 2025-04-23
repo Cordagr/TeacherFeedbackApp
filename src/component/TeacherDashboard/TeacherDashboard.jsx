@@ -12,19 +12,35 @@ import {
   Container,
   Flex,
   Icon,
+  Checkbox,
+  CheckboxGroup,
+  Stack,
+  Select,
 } from '@chakra-ui/react';
 import { FiBookOpen, FiUser, FiSearch, FiLogOut } from 'react-icons/fi';
 import axios from 'axios';
 import { auth } from '../../firebase';
+import { signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const TeacherDashboard = () => {
   const [className, setClassName] = useState('');
-  const [meetingDays, setMeetingDays] = useState('');
+  const [meetingDays, setMeetingDays] = useState([]);
   const [meetingTimes, setMeetingTimes] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [inviteLink, setInviteLink] = useState('');
   const toast = useToast();
   const user = auth.currentUser;
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const handleCreateClass = async () => {
     if (!user) {
@@ -42,7 +58,7 @@ const TeacherDashboard = () => {
       const response = await axios.post('http://localhost:3002/api/teacherActions/createClassroom', {
         teacherName: user.displayName || 'Teacher',
         ownerTeacherEmail: user.email,
-        meetingDays,
+        meetingDays: meetingDays.join(', '),
         meetingTimes,
       });
 
@@ -58,7 +74,7 @@ const TeacherDashboard = () => {
       });
 
       setClassName('');
-      setMeetingDays('');
+      setMeetingDays([]);
       setMeetingTimes('');
     } catch (error) {
       console.error('Error creating classroom:', error);
@@ -74,16 +90,18 @@ const TeacherDashboard = () => {
 
   return (
     <Box minH="100vh" bg="black" color="white" py={10}>
-      {/* Top Header */}
+      {/* Header */}
       <Container centerContent mb={10}>
         <Flex justify="space-between" align="center" w="full" maxW="container.lg" px={4}>
           <Heading as="h2" size="lg" color="gray.100">Welcome to the Dashboard</Heading>
           <Button
             rightIcon={<FiLogOut />}
-            colorScheme="red"
             variant="outline"
+            borderColor="red.500"
+            color="red.400"
+            _hover={{ bg: "rgba(229, 62, 62, 0.15)" }}
             size="sm"
-            onClick={() => auth.signOut()}
+            onClick={handleSignOut}
           >
             Sign Out
           </Button>
@@ -91,7 +109,7 @@ const TeacherDashboard = () => {
         <Text mt={2} color="gray.400">Choose your section to get started:</Text>
       </Container>
 
-      {/* Dashboard Tabs */}
+      {/* Navigation Tabs */}
       <Flex justify="center" gap={6} mb={12} wrap="wrap">
         <Button leftIcon={<FiBookOpen />} colorScheme="whiteAlpha" variant="outline" size="lg">
           Student Dashboard
@@ -104,7 +122,7 @@ const TeacherDashboard = () => {
         </Button>
       </Flex>
 
-      {/* Class Creation Section */}
+      {/* Class Creation */}
       <Container
         maxW="container.md"
         bg="gray.900"
@@ -129,32 +147,45 @@ const TeacherDashboard = () => {
 
         <FormControl mb={4}>
           <FormLabel color="gray.300">Meeting Days</FormLabel>
-          <Input
+          <CheckboxGroup
+            colorScheme="teal"
             value={meetingDays}
-            placeholder="e.g. Monday, Wednesday"
-            onChange={(e) => setMeetingDays(e.target.value)}
-            bg="gray.800"
-            borderColor="gray.600"
-            color="white"
-          />
+            onChange={(values) => setMeetingDays(values)}
+          >
+            <Stack spacing={2} direction="column">
+              <Checkbox value="Monday">Monday</Checkbox>
+              <Checkbox value="Tuesday">Tuesday</Checkbox>
+              <Checkbox value="Wednesday">Wednesday</Checkbox>
+              <Checkbox value="Thursday">Thursday</Checkbox>
+              <Checkbox value="Friday">Friday</Checkbox>
+            </Stack>
+          </CheckboxGroup>
         </FormControl>
 
         <FormControl mb={6}>
           <FormLabel color="gray.300">Meeting Times</FormLabel>
-          <Input
+          <Select
+            placeholder="Select meeting time"
             value={meetingTimes}
-            placeholder="e.g. 2:00-3:30 PM"
             onChange={(e) => setMeetingTimes(e.target.value)}
             bg="gray.800"
             borderColor="gray.600"
             color="white"
-          />
+            _placeholder={{ color: 'gray.500' }}
+            _hover={{ borderColor: 'teal.300' }}
+            _focus={{ borderColor: 'teal.500', boxShadow: '0 0 0 1px teal.500' }}
+          >
+            <option style={{ backgroundColor: '#2D3748', color: 'white' }} value="8:00 - 9:30 AM">8:00 - 9:30 AM</option>
+            <option style={{ backgroundColor: '#2D3748', color: 'white' }} value="10:00 - 11:30 AM">10:00 - 11:30 AM</option>
+            <option style={{ backgroundColor: '#2D3748', color: 'white' }} value="1:00 - 2:30 PM">1:00 - 2:30 PM</option>
+            <option style={{ backgroundColor: '#2D3748', color: 'white' }} value="3:00 - 4:30 PM">3:00 - 4:30 PM</option>
+          </Select>
         </FormControl>
 
         <Button
           colorScheme="teal"
           onClick={handleCreateClass}
-          isDisabled={!className || !meetingDays || !meetingTimes}
+          isDisabled={!className || meetingDays.length === 0 || !meetingTimes}
           width="full"
           mb={6}
         >
@@ -174,3 +205,5 @@ const TeacherDashboard = () => {
 };
 
 export default TeacherDashboard;
+
+

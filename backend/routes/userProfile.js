@@ -62,4 +62,21 @@ const { email } = req.params;
   }
 });
 
+
+userProfileRouter.get('/getTeacherUserProfileStatus/:email', async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const existingProfile = await TeacherProfile.findOne({email});
+    if (existingProfile) {
+      res.status(200).json({exists: true, profile: existingProfile});
+    } else {
+      res.status(200).json({exists: false});
+    }
+  } catch (err) {
+    console.error('Error checking teacher user profile:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+}); 
+
 module.exports = userProfileRouter;

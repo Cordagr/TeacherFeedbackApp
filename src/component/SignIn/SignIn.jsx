@@ -36,22 +36,37 @@ const SignIn = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+  
       if (currentUser) {
         try {
-          const res = await fetch(`http://localhost:3002/api/userProfile/getUserProfileStatus/${currentUser.email}`);
-          const data = await res.json();
-          if (data.exists) {
+          const email = currentUser.email;
+  
+          const [studentRes, teacherRes] = await Promise.all([
+            fetch(`http://localhost:3002/api/userProfile/getUserProfileStatus/${email}`),
+            fetch(`http://localhost:3002/api/userProfile/getTeacherUserProfileStatus/${email}`)
+          ]);
+  
+          const studentData = await studentRes.json();
+          const teacherData = await teacherRes.json();
+  
+          if (studentData.exists) {
             navigate('/dashboard');
+          } else if (teacherData.exists) {
+            navigate('/TeacherDashboard');
           }
+          // if neither exists, let them go to userType selection or onboarding
         } catch (err) {
           console.error("Error checking profile:", err);
         }
       }
+  
       setLoading(false);
     });
+  
     return () => unsubscribe();
   }, [navigate]);
-
+  
+  
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
