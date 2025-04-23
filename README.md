@@ -1,7 +1,3 @@
-Looking at this student dashboard with its minimalist dark design, here are some elements you could add to make it more visually engaging without compromising its clean aesthetic:
-
-
-
 A subtle gradient background instead of solid black (perhaps dark blue to black or dark purple to black)
 Abstract geometric shapes or patterns in very low opacity in the background
 A thin accent line or border with a brand color (maybe blue, purple, or teal)
