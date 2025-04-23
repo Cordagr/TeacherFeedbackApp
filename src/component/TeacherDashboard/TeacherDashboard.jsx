@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -29,6 +29,7 @@ const TeacherDashboard = () => {
   const [meetingTimes, setMeetingTimes] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [inviteLink, setInviteLink] = useState('');
+  const [teacherClasses, setTeacherClasses] = useState([]);
   const toast = useToast();
   const user = auth.currentUser;
   const navigate = useNavigate();
@@ -58,6 +59,7 @@ const TeacherDashboard = () => {
       const response = await axios.post('http://localhost:3002/api/teacherActions/createClassroom', {
         teacherName: user.displayName || 'Teacher',
         ownerTeacherEmail: user.email,
+        className: className,
         meetingDays: meetingDays.join(', '),
         meetingTimes,
       });
@@ -76,6 +78,7 @@ const TeacherDashboard = () => {
       setClassName('');
       setMeetingDays([]);
       setMeetingTimes('');
+      fetchTeacherClasses(); // refresh class list
     } catch (error) {
       console.error('Error creating classroom:', error);
       toast({
@@ -87,6 +90,28 @@ const TeacherDashboard = () => {
       });
     }
   };
+
+  const fetchTeacherClasses = async () => {
+    if (user?.email) {
+      try {
+        const response = await axios.get(`http://localhost:3002/api/teacherActions/getTeacherClassrooms/${user.email}`);
+        setTeacherClasses(response.data);
+      } catch (error) {
+        console.error('Error fetching classrooms:', error);
+        toast({
+          title: 'Error loading classrooms',
+          description: 'Could not fetch your classes.',
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchTeacherClasses();
+  }, [user?.email]);
 
   return (
     <Box minH="100vh" bg="black" color="white" py={10}>
@@ -109,7 +134,7 @@ const TeacherDashboard = () => {
         <Text mt={2} color="gray.400">Choose your section to get started:</Text>
       </Container>
 
-      {/* Navigation Tabs */}
+     
       <Flex justify="center" gap={6} mb={12} wrap="wrap">
         <Button leftIcon={<FiBookOpen />} colorScheme="whiteAlpha" variant="outline" size="lg">
           Student Dashboard
@@ -122,7 +147,7 @@ const TeacherDashboard = () => {
         </Button>
       </Flex>
 
-      {/* Class Creation */}
+      
       <Container
         maxW="container.md"
         bg="gray.900"
@@ -200,10 +225,32 @@ const TeacherDashboard = () => {
           </Box>
         )}
       </Container>
+
+      
+      <Container maxW="container.md" mt={10}>
+        <Heading size="md" mb={4} color="gray.100">Your Classes</Heading>
+
+        {teacherClasses.length === 0 ? (
+          <Text color="gray.400">No classes created yet.</Text>
+        ) : (
+          teacherClasses.map((classroom) => (
+            <Box
+              key={classroom._id}
+              p={4}
+              mb={4}
+              borderRadius="md"
+              bg="gray.800"
+              border="1px solid rgba(255,255,255,0.1)"
+            >
+              <Text fontWeight="bold" fontSize="lg" color="teal.300">{classroom.className}</Text>
+              <Text color="gray.400">Invite Code: <Code color="green.300">{classroom.inviteCode}</Code></Text>
+              <Text color="gray.500" fontSize="sm">Meeting: {classroom.meetingDays} @ {classroom.meetingTimes}</Text>
+            </Box>
+          ))
+        )}
+      </Container>
     </Box>
   );
 };
 
 export default TeacherDashboard;
-
-

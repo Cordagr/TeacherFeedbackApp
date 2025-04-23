@@ -61,4 +61,16 @@ classroomRouter.post('/joinClassroom', async (req, res) => {
   }
 });
 
+classroomRouter.get('/getTeacherClassrooms/:email', async(req,res) => 
+{
+  const { email } = req.params;
+  try {
+    const classrooms = await Classroom.find({ ownerTeacherEmail: email });
+    res.status(200).json(classrooms);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch classrooms' });
+  }
+})
+
 module.exports = classroomRouter;
