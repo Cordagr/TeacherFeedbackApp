@@ -3,6 +3,11 @@ const express = require('express');
 const router = express.Router();
 
 
+router.post('/createClassroom', (req, res) => {
+    // Handle user registration logic here
+    res.json({ message: 'Creating Feedback Room' });
+});
+
 // Define a POST route for user profile registration
 router.post('/makeFeedbackRoom', (req, res) => {
     // Handle user registration logic here

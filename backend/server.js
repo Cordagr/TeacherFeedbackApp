@@ -32,6 +32,10 @@ app.use('/api/auth', loginRouter);
 const userProfileRouter = require('./routes/userProfile');
 app.use('/api/userProfile', userProfileRouter);
 
+const classroomRouter = require('./routes/classroom')
+app.use('/api/classroom', classroomRouter);
+
+
 // Connect Redis using environment variables
 //const redisPublisher = createClient({
   //url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`

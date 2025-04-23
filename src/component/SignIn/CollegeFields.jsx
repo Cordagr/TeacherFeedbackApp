@@ -161,7 +161,7 @@ export default function CollegeFields() {
         isClosable: true,
       });
 
-      navigate("/dashboard");
+      navigate("/TeacherDashboard");
     } catch (error) {
       console.error("Error registering teacher profile:", error);
       // deploy check // 
