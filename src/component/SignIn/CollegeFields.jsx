@@ -164,7 +164,7 @@ export default function CollegeFields() {
       navigate("/dashboard");
     } catch (error) {
       console.error("Error registering teacher profile:", error);
-      
+      // deploy check // 
       toast({
         title: "Registration failed",
         description: error.response?.data?.message || "There was an error saving your profile. Please try again.",
