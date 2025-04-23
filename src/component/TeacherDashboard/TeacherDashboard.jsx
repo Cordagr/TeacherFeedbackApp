@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Button, Heading, Input, Text, Code, useToast } from '@chakra-ui/react';
 import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase'; // adjust path as needed
+import { auth, db } from '../../firebase'; 
 
 function generateInviteCode(length = 10) {
   return Math.random().toString(36).substr(2, length) +

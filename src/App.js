@@ -13,7 +13,7 @@ import { getUser } from "./utils";
 import Profile from './component/Profile/Profile';
 import Search from './component/Search/Search';
 import SignUp from './component/SignUp/SignUp';
-
+import TeacherDashboard from './component/TeacherDashboard/TeacherDashboard';
 import MainDashboard from "./component/MainDashboard/MainDashboard";
 
 
@@ -56,45 +56,7 @@ function App() {
   const [type, setType] = useState('');
   const navigate = useNavigate();
  
-
-  useEffect(() => {
-    if (loading) return;
-  
-    const currentPath = window.location.pathname;
-  
-    if (!user) {
-      // User not logged in → redirect to SignIn
-      if (currentPath !== "/signin") {
-        navigate("/signin");
-      }
-      return;
-    }
-  
-    // Firebase user exists
-    const fetchUser = async () => {
-      const firestoreUser = await getUser(user.email);
-  
-      if (firestoreUser?.type) {
-        setType(firestoreUser.type);
-        setLoaded(true);
-  
-        // If not already on dashboard, redirect
-        if (!currentPath.startsWith("/MainDashboard")) {
-          navigate("/MainDashboard");
-        }
-      } else {
-        // User exists in Firebase Auth but not Firestore
-        // Redirect to onboarding steps (like extra user info form)
-
-
-        if (!currentPath.startsWith("/onboarding")) {
-          //
-        }
-      }
-    };
-  
-    fetchUser();
-  }, [user, loading, navigate]);
+ 
   
     
   return (
@@ -111,7 +73,9 @@ function App() {
         <Route path="/student" element={<StudentRateDashboard />} />
         <Route path="/dashboard" element={<MainDashboard/>} />
         <Route path="StudentDashboard" element={<StudentRateDashboard />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path ="ClassDashboard" element={<ClassDashboard />} />
+        <Route path= "TeacherDashboard" element={<TeacherDashboard/>} />
       </Routes>
     </ChakraProvider>
   );

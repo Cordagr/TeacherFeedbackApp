@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const classroomSchema = new mongoose.Schema({
-  name: String,
+  teacherName: String,
   ownerTeacherEmail: { type: String, required:true },
   inviteCode: String, 
   createdAt: { type: Date, default: Date.now },

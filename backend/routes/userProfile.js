@@ -1,7 +1,7 @@
 const express = require('express');
 const userProfileRouter = express.Router();
 const StudentProfile = require('../models/StudentProfile');
-
+const TeacherProfile = require('../models/TeacherProfile');
 
 userProfileRouter.post('/registerUserProfile', async (req, res) => {
   try {
@@ -23,6 +23,27 @@ userProfileRouter.post('/registerUserProfile', async (req, res) => {
   }
 });
 
+userProfileRouter.post('/registerTeacherUserProfile', async (req, res) => {
+
+  try {
+    const {first_name, last_name, email, subject, phone_number} = req.body;
+    console.log('Received profile submission:', req.body);
+    const newProfile = new TeacherProfile({
+      first_name,
+      last_name,
+      email,
+      subject,
+      phone_number,
+    });
+    await newProfile.save();
+    res.status(201).json({ message: 'Teacher profile created successfully' });
+  } catch (err) {
+    console.error('Error saving teacher profile:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+})
+
+
 // Fetch status on user profile (checkign if userProfile has been created already)
 userProfileRouter.get('/getUserProfileStatus/:email', async (req, res) => {
 const { email } = req.params;
@@ -40,6 +61,5 @@ const { email } = req.params;
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-
 
 module.exports = userProfileRouter;

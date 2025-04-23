@@ -44,7 +44,7 @@ const StudentReviewForm = () => {
     };
 
     try {
-      await axios.post('http://localhost:3001/api/userProfile/registerUserProfile', profileData);
+      await axios.post('http://localhost:3002/api/userProfile/registerUserProfile', profileData);
       toast({
         title: 'Profile Created',
         description: 'Your profile has been successfully registered.',

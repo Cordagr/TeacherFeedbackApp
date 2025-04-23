@@ -9,6 +9,11 @@ router.post('/registerUserProfile', (req, res) => {
     res.json({ message: 'Registering User Profile' });
 });
 
+router.post('/registerTeacherUserProfile', (req, res) => {
+    // Handle teacher user registration logic here
+    res.json({ message: 'Registering Teacher User Profile' });
+})
+
 router.post('/deleteAccount', (req,res) =>
 {
 res.json({ message: 'Deleting User Account' });

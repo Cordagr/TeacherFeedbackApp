@@ -25,7 +25,7 @@ const SignIn = () => {
 
       if (currentUser) {
         try {
-          const res = await fetch(`http://localhost:3001/api/userProfile/getUserProfileStatus/${currentUser.email}`);
+          const res = await fetch(`http://localhost:3002/api/userProfile/getUserProfileStatus/${currentUser.email}`);
           const data = await res.json();
 
           if (data.exists) {

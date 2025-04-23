@@ -1,131 +1,184 @@
 import React, { useState } from 'react';
 import { CUIAutoComplete } from 'chakra-ui-autocomplete';
-import MainDashboard from '../MainDashboard/MainDashboard'; // Ensure this path is correct
 import {
   FormControl,
   FormLabel,
   Select,
-  Radio,
-  HStack,
-  RadioGroup,
   Input,
   Flex,
   Button,
   Box,
   useColorModeValue,
-  Text
+  Text,
+  useToast,
+  FormErrorMessage
 } from "@chakra-ui/react";
-import { extendTheme } from "@chakra-ui/react";
-import { mode } from "@chakra-ui/theme-tools";
-import { addUser } from "../../utils";
-import { useNavigate } from 'react-router-dom'; // fixed: useNavigate instead of useHistory
+import { useNavigate } from 'react-router-dom';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from '../../firebase';
+import { addUser } from "../../utils";
+import axios from 'axios';
 
-// Theme setup
-const theme = extendTheme({
-  styles: {
-    global: {
-      body: {
-        bg: mode("gray.50", "gray.800"),
-        color: mode("gray.800", "white"),
-      },
-      a: {
-        color: "teal.500",
-        _hover: { textDecoration: "underline" },
-      },
-    },
-  },
-});
+// List of college names
+const colleges = [
+  "University of North Texas",
+  "University of Texas at Austin",
+  "Texas A&M University",
+  "Rice University",
+  "University of Houston",
+  "Texas State University",
+  "Texas Tech University",
+  "Southern Methodist University",
+  "Baylor University",
+  "University of Texas at Dallas"
+];
 
-// List of majors
-const majors = [
-  { value: "Architecture", label: "Architecture" },
-  { value: "Anthropology", label: "Anthropology" },
-  { value: "Biology", label: "Biology" },
-  { value: "Biomedical Engineering", label: "Biomedical Engineering" },
-  { value: "Business Administration", label: "Business Administration" },
-  { value: "Chemistry", label: "Chemistry" },
+// List of subjects/departments
+const subjects = [
   { value: "Computer Science", label: "Computer Science" },
-  { value: "Dance", label: "Dance" },
-  { value: "Dentistry", label: "Dentistry" },
-  { value: "Economics", label: "Economics" },
-  { value: "Education", label: "Education" },
-  { value: "English", label: "English" },
-  { value: "Finance", label: "Finance" },
-  { value: "French", label: "French" },
-  { value: "Geography", label: "Geography" },
-  { value: "History", label: "History" },
-  { value: "International Studies", label: "International Studies" },
-  { value: "Journalism", label: "Journalism" },
-  { value: "Korean", label: "Korean" },
-  { value: "Law", label: "Law" },
-  { value: "Management", label: "Management" },
-  { value: "Neuroscience", label: "Neuroscience" },
-  { value: "Optometry", label: "Optometry" },
+  { value: "Mathematics", label: "Mathematics" },
+  { value: "Engineering", label: "Engineering" },
+  { value: "Business", label: "Business" },
   { value: "Psychology", label: "Psychology" },
-  { value: "Public Health", label: "Public Health" },
-  { value: "Sociology", label: "Sociology" },
-  { value: "Spanish", label: "Spanish" },
-  { value: "Statistics", label: "Statistics" },
-  { value: "Teaching", label: "Teaching" },
-  { value: "Web Design", label: "Web Design" },
-  { value: "Zoology", label: "Zoology" },
-  { value: "Undecided", label: "Undecided" }
+  { value: "Biology", label: "Biology" },
+  { value: "Education", label: "Education" },
+  { value: "Economics", label: "Economics" },
+  { value: "Art", label: "Art" },
+  { value: "Other", label: "Other" }
 ];
 
 export default function CollegeFields() {
-  const [pickerItems, setPickerItems] = useState(majors);
+  const [pickerItems, setPickerItems] = useState(subjects);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [college, setCollege] = useState('');
-  const [grade, setGrade] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    college: '',
+    phone_number: '',
+    subject: '',
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [user] = useAuthState(auth);
   const email = user?.email;
-  const photoUrl = user?.photoURL;
-  const firstName = user?.displayName?.split(" ")[0];
-  const lastName = user?.displayName?.split(" ")[1];
 
-  const navigate = useNavigate(); // updated from useHistory
+  const navigate = useNavigate();
+  const toast = useToast();
 
-  // Handle adding majors
   const handleCreateItem = (item) => {
     setPickerItems((curr) => [...curr, item]);
     setSelectedItems((curr) => [...curr, item]);
   };
 
-  // Handle major selection changes
   const handleSelectedItemsChange = (changes) => {
     if (changes.selectedItems) {
       setSelectedItems(changes.selectedItems);
+      // Update the subject in formData whenever selection changes
+      const subjectList = changes.selectedItems.map(item => item.value).join(", ");
+      setFormData(prev => ({ ...prev, subject: subjectList }));
     }
   };
 
-  // Handle form submission
-  const handleSubmit = () => {
-    const majorList = selectedItems.map(item => item.value).join(", ");
-    const mentor = {
-      firstName,
-      lastName,
-      type: 'college',
-      mobile: phoneNumber,
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when field is edited
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.first_name) newErrors.first_name = "First name is required";
+    if (!formData.last_name) newErrors.last_name = "Last name is required";
+    if (!formData.college) newErrors.college = "College selection is required";
+    
+    // Phone validation
+    if (!formData.phone_number) {
+      newErrors.phone_number = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phone_number.replace(/\D/g, ''))) {
+      newErrors.phone_number = "Please enter a valid 10-digit phone number";
+    }
+    
+    // Subject validation
+    if (selectedItems.length === 0) {
+      newErrors.subject = "Please select at least one subject";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const formatPhoneNumber = (phoneNumber) => {
+    // Remove all non-digits
+    const digits = phoneNumber.replace(/\D/g, '');
+    return digits;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast({
+        title: "Form validation failed",
+        description: "Please check the form for errors",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    const subjectList = selectedItems.map(item => item.value).join(", ");
+    const formattedPhone = formatPhoneNumber(formData.phone_number);
+    
+    const teacher = {
+      first_name: formData.first_name,
+      last_name: formData.last_name,
       email,
-      year: grade,
-      college,
-      major: majorList,
-      imageUrl: photoUrl,
-      rating: 0,
-      reviewCount: 0,
+      subject: subjectList || "Not specified", // Fallback value
+      phone_number: formattedPhone,
+      college: formData.college,
     };
-    console.log("Submitted Mentor:", mentor);
-    addUser(mentor); // Save mentor data to Firebase
-    navigate("/MainDashboard"); // fixed: navigate instead of history.replace
+
+    console.log("Submitting Teacher:", teacher);
+
+    try {
+      // Save to MongoDB backend
+      await axios.post("http://localhost:3002/api/userProfile/registerTeacherUserProfile", teacher);
+
+      // Optional: also save to Firebase or Firestore
+      addUser(teacher);
+
+      toast({
+        title: "Profile created",
+        description: "Your teacher profile has been successfully registered",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error registering teacher profile:", error);
+      
+      toast({
+        title: "Registration failed",
+        description: error.response?.data?.message || "There was an error saving your profile. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Box
-      alignContent="top"
       borderColor="blackAlpha.50"
       borderWidth="5px"
       bg={useColorModeValue('gray.50', 'inherit')}
@@ -134,68 +187,83 @@ export default function CollegeFields() {
       px={{ base: '4', lg: '8' }}
       margin="-0.5rem 1rem 6rem 1rem"
     >
-      <Text fontSize="4xl">Welcome {firstName} {lastName}!</Text>
+      <Text fontSize="4xl">Teacher Profile Registration</Text>
 
-      {/* College Selection */}
-      <FormControl id="school" isRequired margin="1rem 0rem">
-        <FormLabel>Search for your institution</FormLabel>
-        <Select
-          placeholder="Select College/University"
-          onChange={(e) => setCollege(e.currentTarget.value)}
-        >
-          <option>University of California Berkeley</option>
-          <option>University of California Santa Cruz</option>
-          <option>University of California Riverside</option>
-          <option>University of California Los Angeles</option>
-          <option>University of California Irvine</option>
-          <option>University of California San Diego</option>
-          <option>University of Southern California</option>
-          <option>Harvard University</option>
-          <option>Stanford University</option>
-          <option>Columbia University</option>
-          <option>Yale University</option>
-          <option>Brown University</option>
-          <option>Massachusetts Institute of Technology</option>
-        </Select>
+      {/* First Name */}
+      <FormControl id="first-name" isRequired margin="1rem 0rem" isInvalid={errors.first_name}>
+        <FormLabel>First Name</FormLabel>
+        <Input
+          placeholder="First Name"
+          name="first_name"
+          value={formData.first_name}
+          onChange={handleInputChange}
+        />
+        <FormErrorMessage>{errors.first_name}</FormErrorMessage>
       </FormControl>
 
-      {/* Major Selection */}
-      <CUIAutoComplete
-        margin="1rem 0rem"
-        label="Select your major"
-        placeholder="Start typing"
-        onCreateItem={handleCreateItem}
-        items={pickerItems}
-        selectedItems={selectedItems}
-        onSelectedItemsChange={handleSelectedItemsChange}
-      />
+      {/* Last Name */}
+      <FormControl id="last-name" isRequired margin="1rem 0rem" isInvalid={errors.last_name}>
+        <FormLabel>Last Name</FormLabel>
+        <Input
+          placeholder="Last Name"
+          name="last_name"
+          value={formData.last_name}
+          onChange={handleInputChange}
+        />
+        <FormErrorMessage>{errors.last_name}</FormErrorMessage>
+      </FormControl>
 
-      {/* Year in School */}
-      <FormControl as="fieldset" isRequired margin="1rem 0rem">
-        <FormLabel as="legend">Year in School</FormLabel>
-        <RadioGroup defaultValue="Senior" onChange={setGrade}>
-          <HStack spacing="50px">
-            <Radio value="Freshman">Freshman</Radio>
-            <Radio value="Sophomore">Sophomore</Radio>
-            <Radio value="Junior">Junior</Radio>
-            <Radio value="Senior">Senior</Radio>
-          </HStack>
-        </RadioGroup>
+      {/* College Selection */}
+      <FormControl id="college" isRequired margin="1rem 0rem" isInvalid={errors.college}>
+        <FormLabel>Select Your College</FormLabel>
+        <Select
+          placeholder="Select College"
+          name="college"
+          value={formData.college}
+          onChange={handleInputChange}
+        >
+          {colleges.map((collegeName) => (
+            <option key={collegeName} value={collegeName}>{collegeName}</option>
+          ))}
+        </Select>
+        <FormErrorMessage>{errors.college}</FormErrorMessage>
+      </FormControl>
+
+      {/* Subject/Department */}
+      <FormControl isInvalid={errors.subject} margin="1rem 0rem">
+        <FormLabel>Your Department or Subject Area (Required)</FormLabel>
+        <CUIAutoComplete
+          placeholder="Start typing"
+          onCreateItem={handleCreateItem}
+          items={pickerItems}
+          selectedItems={selectedItems}
+          onSelectedItemsChange={handleSelectedItemsChange}
+        />
+        <FormErrorMessage>{errors.subject}</FormErrorMessage>
       </FormControl>
 
       {/* Phone Number */}
-      <FormControl id="phone-number" isRequired margin="1rem 0rem">
+      <FormControl id="phone-number" isRequired margin="1rem 0rem" isInvalid={errors.phone_number}>
         <FormLabel>Phone Number</FormLabel>
         <Input
           placeholder="(xxx) xxx-xxxx"
-          onChange={(e) => setPhoneNumber(e.currentTarget.value)}
+          name="phone_number"
+          value={formData.phone_number}
+          onChange={handleInputChange}
         />
+        <FormErrorMessage>{errors.phone_number}</FormErrorMessage>
       </FormControl>
 
-      {/* Submit Button */}
+      {/* Submit */}
       <Flex justifyContent="center">
-        <Button mt={4} onClick={handleSubmit} colorScheme="teal">
-          Signup
+        <Button 
+          mt={4} 
+          onClick={handleSubmit} 
+          colorScheme="teal"
+          isLoading={isSubmitting}
+          loadingText="Submitting"
+        >
+          Sign Up
         </Button>
       </Flex>
     </Box>

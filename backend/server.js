@@ -51,7 +51,7 @@ app.use('/api/userProfile', userProfileRouter);
 //});
 
 // Listen on a dynamic port (use PORT from .env file or default to 3001)
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3002;
 server.listen(port, () => console.log(`Server running on port ${port}`));
 
 module.exports = app;

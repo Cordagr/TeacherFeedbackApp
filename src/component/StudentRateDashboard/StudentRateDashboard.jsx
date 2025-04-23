@@ -79,7 +79,7 @@ const StudentRateDashboard = () => {
       
       // Include the Firebase email when submitting
       const response = await axios.post(
-        'http://localhost:3001/api/userProfile/registerUserProfile',
+        'http://localhost:3002/api/userProfile/registerUserProfile',
         {payload}, // Attach the Firebase email
         {
           headers: { 'Content-Type': 'application/json' },
