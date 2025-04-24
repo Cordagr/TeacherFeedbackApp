@@ -21,10 +21,13 @@ import {
   ModalCloseButton,
   useDisclosure,
   Badge,
-  Flex
+  Flex,
+  IconButton
 } from '@chakra-ui/react';
+import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
 import { getAuth } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const ClassDashboard = () => {
   const [classrooms, setClassrooms] = useState([]);
@@ -33,6 +36,7 @@ const ClassDashboard = () => {
   const [joiningClass, setJoiningClass] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchClassrooms();
@@ -144,6 +148,10 @@ const ClassDashboard = () => {
     });
   };
 
+  const handleBackToDashboard = () => {
+    navigate('/dashboard');
+  };
+
   if (loading) {
     return (
       <Box height="100vh" display="flex" alignItems="center" justifyContent="center" bg="black">
@@ -155,7 +163,17 @@ const ClassDashboard = () => {
   return (
     <Box p={6} bg="black" color="white" minHeight="100vh">
       <Stack direction={["column", "row"]} justify="space-between" align="center" mb={8}>
-        <Heading mb={[4, 0]}>My Classes</Heading>
+        <Flex align="center">
+          <IconButton
+            icon={<ArrowLeft />}
+            aria-label="Back to Dashboard"
+            variant="ghost"
+            colorScheme="teal"
+            mr={3}
+            onClick={handleBackToDashboard}
+          />
+          <Heading mb={[4, 0]}>My Classes</Heading>
+        </Flex>
         <Button colorScheme="teal" onClick={onOpen}>
           Join Classroom
         </Button>

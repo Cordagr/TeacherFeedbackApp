@@ -91,6 +91,36 @@ const TeacherDashboard = () => {
     }
   };
 
+  const createClassrooomSession = async(req, res) =>
+  {
+    const {classroomId, sessionDate, endTime, durationMinutes, isOpen, notes} = req.body;
+    try {
+      const classroomSession = new ClassroomSession({
+        classroomId,
+        sessionDate,
+        endTime,
+        durationMinutes,
+        isOpen,
+        notes
+      });
+      await classroomSession.save();
+      res.status(200).json({message: 'Classroom session created successfully'});
+    } catch (error) {
+      console.error('Error creating classroom session:', error);
+      res.status(400).json({error: 'Failed to create classroom session'});
+    }
+  }
+
+
+  const fetchClassroomSessions = async () => 
+  {
+
+
+
+
+  }
+
+
   const fetchTeacherClasses = async () => {
     if (user?.email) {
       try {
