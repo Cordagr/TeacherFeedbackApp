@@ -11,13 +11,14 @@ const generateInviteCode = () => crypto.randomBytes(4).toString('hex');
 
 classroomRouter.post('/createClassroom', async (req, res) => {
   try {
-    const { teacherName, ownerTeacherEmail, meetingDays, meetingTimes } = req.body;
+    const { teacherName, ownerTeacherEmail, meetingDays, meetingTimes, className } = req.body;
 
     const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     const classroom = new Classroom({
       teacherName,
       ownerTeacherEmail,
+      className,
       inviteCode,
       meetingDays,
       meetingTimes,
@@ -63,22 +64,19 @@ classroomRouter.post('/joinClassroom', async (req, res) => {
   }
 });
 
-classroomRouter.get('/getStudentClassrooms/:email', async(req,res) =>
-{
-const {inviteCode, email} = req.params;
+classroomRouter.get('/getStudentClassrooms/:email', async(req,res) => {
+  const { email } = req.params;
   try {
-    // edit need to make sure student is also in classroom // 
     const classrooms = await Classroom.find({students: email});
     res.status(200).json(classrooms);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch classrooms' });
   }
-})
+});
 
 
-classroomRouter.get('/getTeacherClassrooms/:email', async(req,res) => 
-{
+classroomRouter.get('/getTeacherClassrooms/:email', async(req,res) => {
   const { email } = req.params;
   try {
     const classrooms = await Classroom.find({ ownerTeacherEmail: email });
@@ -87,30 +85,29 @@ classroomRouter.get('/getTeacherClassrooms/:email', async(req,res) =>
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch classrooms' });
   }
-})
+});
 
 
-classroomRouter.post('createClassroomSession', async(req,res) =>
-{
-// Allow to reoccur automatically // 
-    const { inviteCode, sessionDate, endTime, durationMinutes, notes } = req.body;
-    try
-    {
-    const classroom = await Classroom.findById(inviteCode);
+
+classroomRouter.post('/createClassroomSession', async(req,res) => {
+  
+  const { inviteCode, sessionDate, endTime, durationMinutes, notes } = req.body;
+  try {
+    const classroom = await Classroom.findOne({ inviteCode });
     if (!classroom) {
       return res.status(404).json({ error: 'Classroom not found' });
     }
 
-    const classroomId = inviteCode
+    const classroomId = inviteCode;
 
     const classroomSession = new ClassroomSession({
       classroomId,
-      sessionDate,
+      sessionDate: new Date(sessionDate),
       endTime: endTime ? new Date(endTime) : null,
       durationMinutes: durationMinutes || 60,
       notes: notes || '',
-    })
-
+      isOpen: false 
+    });
 
     await classroomSession.save();
 
@@ -119,11 +116,10 @@ classroomRouter.post('createClassroomSession', async(req,res) =>
     console.error('Error creating classroom session:', error);
     res.status(400).json({ error: 'Failed to create classroom session' });
   }
-})
+});
 
-// To use to enroll specific sessions made by teacher // 
-classroomRouter.get('/getClassroomSessions/:classroomId', async(req,res) =>
-{
+
+classroomRouter.get('/getClassroomSessions/:classroomId', async(req,res) => {
   const { classroomId } = req.params;
   try {
     const sessions = await ClassroomSession.find({ classroomId });
@@ -132,21 +128,20 @@ classroomRouter.get('/getClassroomSessions/:classroomId', async(req,res) =>
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch classroom sessions' });
   }
-})
+});
 
+ 
 
-
-// Automatically update session status every minute //
 cron.schedule('* * * * *', async () => {
   const now = new Date();
 
-  
+ 
   await ClassroomSession.updateMany(
     { isOpen: false, sessionDate: { $lte: now } },
     { isOpen: true }
   );
 
-  
+
   await ClassroomSession.updateMany(
     { isOpen: true, endTime: { $lte: now } },
     { isOpen: false }
