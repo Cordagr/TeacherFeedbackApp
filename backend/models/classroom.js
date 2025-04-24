@@ -7,7 +7,7 @@ const classroomSchema = new mongoose.Schema({
   meetingTimes: { type: String, required: true },
   meetingDays: [{ type: String, required: true }],
   createdAt: { type: Date, default: Date.now },
-  students: [{ type: String }]
+  students: [{ type: String }] // Stores student emails as identifiers // 
 });
 
 module.exports = mongoose.model('Classroom', classroomSchema);

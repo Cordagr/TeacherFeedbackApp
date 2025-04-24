@@ -14,5 +14,14 @@ router.post('/leaveFeedbackRoom', (req,res) =>
 res.json({ message: 'Leaving Feedback Room' });
 })
 
+router.post('/getStudentClassrooms/:email', (req, res) => {
+   
+    res.json({ message: 'Fetching Student Classrooms' });
+});
+
+router.post('/joinClassroom', (req, res) => {
+    res.json({ message: 'Joining Classroom' });
+});
+
 // Export the router to be used in server.js
 module.exports = router;

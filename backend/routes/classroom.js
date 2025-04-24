@@ -61,6 +61,20 @@ classroomRouter.post('/joinClassroom', async (req, res) => {
   }
 });
 
+classroomRouter.get('/getStudentClassrooms/:email', async(req,res) =>
+{
+const {inviteCode, email} = req.params;
+  try {
+    // edit need to make sure student is also in classroom // 
+    const classrooms = await Classroom.find({students: email});
+    res.status(200).json(classrooms);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch classrooms' });
+  }
+})
+
+
 classroomRouter.get('/getTeacherClassrooms/:email', async(req,res) => 
 {
   const { email } = req.params;

@@ -35,6 +35,9 @@ app.use('/api/userProfile', userProfileRouter);
 const classroomRouter = require('./routes/classroom')
 app.use('/api/teacherActions', classroomRouter);
 
+const studentActionsRouter = require('./routes/classroom');
+app.use('/api/studentActions', studentActionsRouter);
+
 
 // Connect Redis using environment variables
 //const redisPublisher = createClient({
