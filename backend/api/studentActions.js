@@ -23,5 +23,9 @@ router.post('/joinClassroom', (req, res) => {
     res.json({ message: 'Joining Classroom' });
 });
 
+router.post('/postAnonymousFeedback', (req,res) =>
+{
+res.json({ message: 'Posting Anonymous Feedback' });
+})
 // Export the router to be used in server.js
 module.exports = router;

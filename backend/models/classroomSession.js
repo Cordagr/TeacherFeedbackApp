@@ -31,6 +31,12 @@ const classroomSessionSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  attachments: [
+    {
+      attachment: String,           
+      timestamp: { type: Date, default: Date.now }
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

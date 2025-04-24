@@ -29,6 +29,16 @@ router.post('/exportFeedback', (req,res) =>
 res.json({ message: 'Exporting Feedback Room' });
 })
 
+router.post('/attachTeacherAttachment', (req,res) =>
+{
+res.json({ message: 'Attaching Teacher Attachment' });
+})
+
+router.post('/getTeacherClassrooms/:email', (req, res) =>
+{
+res.json({ message: 'Fetching Teacher Classrooms' });
+})
+
 
 // Export the router to be used in server.js
 module.exports = router;

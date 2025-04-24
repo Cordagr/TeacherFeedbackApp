@@ -286,6 +286,32 @@ const TeacherDashboard = () => {
     }
   };
 
+  const attachTeacherAttachment = async (classroomId, file) => {
+    if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Only PDF files are allowed');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('attachment', file);
+    formData.append('classroomId', classroomId);
+  
+    try {
+      const response = await axios.post('http://localhost:3002/api/classroom/attachTeacherAttachment', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      console.log('Attachment successful:', response.data);
+    } catch (error) {
+      console.error('Attachment failed:', error.response?.data || error.message);
+    }
+  };
+  
+
+
+
   useEffect(() => {
     fetchTeacherClasses();
   }, [user?.email]);

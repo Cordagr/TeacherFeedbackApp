@@ -39,6 +39,13 @@ const studentActionsRouter = require('./routes/classroom');
 app.use('/api/studentActions', studentActionsRouter);
 
 
+
+// Connecting Send Grid for email notifications // 
+const sgMail = require('@sendgrid/mail')
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+
+
+
 // Connect Redis using environment variables
 //const redisPublisher = createClient({
   //url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
