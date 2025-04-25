@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Button,
@@ -28,15 +28,16 @@ import {
   NumberInput,
   NumberInputField,
   HStack,
+  Badge,
 } from '@chakra-ui/react';
-import { FiBookOpen, FiUser, FiSearch, FiLogOut, FiCalendar, FiPlus } from 'react-icons/fi';
+import { FiBookOpen, FiUser, FiSearch, FiLogOut, FiCalendar, FiPlus, FiPaperclip, FiFile } from 'react-icons/fi';
 import axios from 'axios';
 import { auth } from '../../firebase';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 const TeacherDashboard = () => {
-  // Existing state variables
+  
   const [className, setClassName] = useState('');
   const [meetingDays, setMeetingDays] = useState([]);
   const [meetingStartTime, setMeetingStartTime] = useState('09:00');
@@ -45,14 +46,17 @@ const TeacherDashboard = () => {
   const [inviteLink, setInviteLink] = useState('');
   const [teacherClasses, setTeacherClasses] = useState([]);
   
-  // New state variables for session creation
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [sessionDate, setSessionDate] = useState('');
   const [endTime, setEndTime] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(60);
   const [sessionNotes, setSessionNotes] = useState('');
   const [classSessions, setClassSessions] = useState({});
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [attachmentFile, setAttachmentFile] = useState(null);
   
+
+  const fileInputRef = useRef(null);
 
   const { 
     isOpen: isSessionModalOpen, 
@@ -66,10 +70,15 @@ const TeacherDashboard = () => {
     onClose: onClassModalClose 
   } = useDisclosure();
   
+  const {
+    isOpen: isAttachmentModalOpen,
+    onOpen: onAttachmentModalOpen,
+    onClose: onAttachmentModalClose
+  } = useDisclosure();
+  
   const toast = useToast();
   const user = auth.currentUser;
   const navigate = useNavigate();
-
 
   const selectStyles = {
     bg: "gray.700",
@@ -77,14 +86,13 @@ const TeacherDashboard = () => {
     color: "white",
     _hover: { borderColor: "teal.300" },
     sx: {
-      // targeting all option elements within this select
+      
       "& option": {
         background: "gray.800",
         color: "white"
       }
     }
   };
-
   
   const generateTimeOptions = () => {
     const options = [];
@@ -180,16 +188,16 @@ const TeacherDashboard = () => {
     }
   };
 
-  // New function to open modal for creating a session
+  
   const openCreateSessionModal = (classroom) => {
     setSelectedClassroom(classroom);
     
-    // Set default date to today
+
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     setSessionDate(formattedDate);
     
-    // Set default end time to 1 hour from now
+  
     const endTimeDate = new Date(today.getTime() + 60 * 60000);
     const formattedEndTime = endTimeDate.toISOString().split('.')[0].slice(0, -3);
     setEndTime(formattedEndTime);
@@ -199,7 +207,7 @@ const TeacherDashboard = () => {
     onSessionModalOpen();
   };
 
-  // New function to create a classroom session
+  
   const handleCreateSession = async () => {
     if (!selectedClassroom || !sessionDate) {
       toast({
@@ -286,36 +294,85 @@ const TeacherDashboard = () => {
     }
   };
 
-  const attachTeacherAttachment = async (classroomId, file) => {
-    if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Only PDF files are allowed');
-      return;
-    }
-  
-    const formData = new FormData();
-    formData.append('attachment', file);
-    formData.append('classroomId', classroomId);
-  
-    try {
-      const response = await axios.post('http://localhost:3002/api/classroom/attachTeacherAttachment', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-  
-      console.log('Attachment successful:', response.data);
-    } catch (error) {
-      console.error('Attachment failed:', error.response?.data || error.message);
+  const openAttachmentModal = (classroom, session) => {
+    setSelectedClassroom(classroom);
+    setSelectedSession(session);
+    setAttachmentFile(null);
+    onAttachmentModalOpen();
+  };
+
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast({
+          title: 'Invalid file type',
+          description: 'Only PDF files are allowed',
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+        return;
+      }
+      setAttachmentFile(file);
     }
   };
-  
 
 
+  const handleUploadAttachment = async () => {
+    if (!attachmentFile || !selectedClassroom) {
+      toast({
+        title: 'Missing information',
+        description: 'Please select a PDF file to upload',
+        status: 'warning',
+        duration: 4000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('attachment', attachmentFile);
+      formData.append('classroomId', selectedClassroom.inviteCode);
+
+      const response = await axios.post(
+        'http://localhost:3002/api/teacherActions/attachTeacherAttachment', 
+        formData, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      toast({
+        title: 'Success!',
+        description: 'PDF attachment uploaded successfully',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+      });
+
+      // Refresh the sessions for this classroom
+      fetchClassroomSessions(selectedClassroom.inviteCode);
+      onAttachmentModalClose();
+    } catch (error) {
+      console.error('Error uploading attachment:', error);
+      toast({
+        title: 'Error',
+        description: error.response?.data?.error || 'Failed to upload attachment',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+    }
+  };
 
   useEffect(() => {
     fetchTeacherClasses();
   }, [user?.email]);
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -327,7 +384,7 @@ const TeacherDashboard = () => {
    
       <Container centerContent mb={10}>
         <Flex justify="space-between" align="center" w="full" maxW="container.lg" px={4}>
-          <Heading as="h2" size="lg" color="gray.100">Welcome to the Dashboard</Heading>
+          <Heading as="h2" size="lg" color="gray.100">Teacher Dashboard</Heading>
           <Button
             rightIcon={<FiLogOut />}
             variant="outline"
@@ -387,7 +444,6 @@ const TeacherDashboard = () => {
               <Text color="gray.400">Invite Code: <Code color="green.300">{classroom.inviteCode}</Code></Text>
               <Text color="gray.500" fontSize="sm">Meeting: {classroom.meetingDays} @ {classroom.meetingTimes}</Text>
               
-             
               <Button
                 mt={4}
                 colorScheme="teal"
@@ -397,7 +453,6 @@ const TeacherDashboard = () => {
               >
                 Create Session
               </Button>
-              
               
               {classSessions[classroom.inviteCode] && classSessions[classroom.inviteCode].length > 0 && (
                 <Box mt={4}>
@@ -411,11 +466,43 @@ const TeacherDashboard = () => {
                       bg="gray.700"
                       fontSize="sm"
                     >
-                      <Text color="teal.200">Date: {formatDate(session.sessionDate)}</Text>
+                      <Flex justifyContent="space-between" alignItems="center">
+                        <Text color="teal.200">Date: {formatDate(session.sessionDate)}</Text>
+                        <Badge 
+                          colorScheme={session.isOpen ? "green" : "gray"}
+                          px={2}
+                          py={1}
+                          borderRadius="md"
+                        >
+                          {session.isOpen ? 'Active' : 'Scheduled'}
+                        </Badge>
+                      </Flex>
+                      
                       {session.endTime && <Text color="gray.300">End: {formatDate(session.endTime)}</Text>}
                       <Text color="gray.300">Duration: {session.durationMinutes} minutes</Text>
-                      <Text color="gray.300">Status: {session.isOpen ? 'Open' : 'Closed'}</Text>
+                      
                       {session.notes && <Text color="gray.400">Notes: {session.notes}</Text>}
+                      
+                      <Flex mt={2} justifyContent="space-between" alignItems="center">
+                        <Button
+                          leftIcon={<FiPaperclip />}
+                          colorScheme="blue"
+                          size="xs"
+                          variant="outline"
+                          onClick={() => openAttachmentModal(classroom, session)}
+                        >
+                          Add Attachment
+                        </Button>
+                        
+                        {session.attachments && session.attachments.length > 0 && (
+                          <HStack spacing={1}>
+                            <Icon as={FiFile} color="blue.300" />
+                            <Text color="blue.300" fontSize="xs">
+                              {session.attachments.length} attachment{session.attachments.length !== 1 ? 's' : ''}
+                            </Text>
+                          </HStack>
+                        )}
+                      </Flex>
                     </Box>
                   ))}
                 </Box>
@@ -568,6 +655,74 @@ const TeacherDashboard = () => {
             </Button>
             <Button colorScheme="teal" onClick={handleCreateSession}>
               Create Session
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Modal for uploading attachments */}
+      <Modal isOpen={isAttachmentModalOpen} onClose={onAttachmentModalClose}>
+        <ModalOverlay />
+        <ModalContent bg="gray.800" color="white">
+          <ModalHeader>Upload PDF Attachment</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedClassroom && selectedSession && (
+              <>
+                <Text mb={2}>Class: <b>{selectedClassroom.className}</b></Text>
+                <Text mb={4}>Session: <b>{formatDate(selectedSession.sessionDate)}</b></Text>
+              </>
+            )}
+            
+            <FormControl mb={4}>
+              <FormLabel>Select PDF File</FormLabel>
+              <Input
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                p={1}
+                bg="gray.700"
+                ref={fileInputRef}
+                sx={{
+                  "::file-selector-button": {
+                    height: "32px",
+                    mr: 3,
+                    border: "none",
+                    background: "teal.500",
+                    color: "white",
+                    borderRadius: "md",
+                    px: 4,
+                    cursor: "pointer",
+                  }
+                }}
+              />
+            </FormControl>
+            
+            {attachmentFile && (
+              <Box p={3} bg="gray.700" borderRadius="md" mb={4}>
+                <Flex align="center">
+                  <Icon as={FiFile} color="teal.300" boxSize={5} mr={2} />
+                  <Text>{attachmentFile.name}</Text>
+                </Flex>
+              </Box>
+            )}
+            
+            <Text fontSize="sm" color="gray.400">
+              Only PDF files are allowed. Maximum file size: 10MB.
+            </Text>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onAttachmentModalClose}>
+              Cancel
+            </Button>
+            <Button 
+              colorScheme="teal" 
+              onClick={handleUploadAttachment}
+              isDisabled={!attachmentFile}
+              leftIcon={<FiPaperclip />}
+            >
+              Upload Attachment
             </Button>
           </ModalFooter>
         </ModalContent>

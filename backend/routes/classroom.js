@@ -7,14 +7,20 @@ const sgMail = require('@sendgrid/mail')
 const multer = require('multer');
 const path = require('path');
 const classroomRouter = express.Router();
+const fs = require('fs');
 
 
 const generateInviteCode = () => crypto.randomBytes(4).toString('hex');
 
+
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); 
-    // Make sure this folder exists
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -23,7 +29,7 @@ const storage = multer.diskStorage({
   }
 });
 
-//  allow PDF files // 
+
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'application/pdf') {
     cb(null, true);
@@ -32,9 +38,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// upload middleware // 
 const upload = multer({ storage, fileFilter });
-
 
 classroomRouter.post('/createClassroom', async (req, res) => {
   try {
@@ -249,8 +253,8 @@ cron.schedule('* * * * *', async () => {
 });
 
 // TODO: Automatic live chat during open sessions // 
-// TODO: Implement categorization of files //
-
+// TODO: Implement categorization of labels attachments //
+// TODO: Implement notification system for students and teachers thruough email // 
 
 
 module.exports = classroomRouter;
