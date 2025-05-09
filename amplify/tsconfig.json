@@ -9,9 +9,8 @@
     "strict": true,
     "skipLibCheck": true,
     "paths": {
-      "$amplify/*": [
-        "../.amplify/generated/*"
-      ]
+      "@/*": ["./src/*"], // Add this to resolve @ alias
+      "$amplify/*": ["../.amplify/generated/*"]
     }
   }
 }
