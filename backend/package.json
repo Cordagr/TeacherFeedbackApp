@@ -2,7 +2,7 @@
   "name": "TeacherFeedbackApplicatio.api",
   "version": "1.0.0",
   "main": "server.js",
-  "type": "module",
+  "type": "common.js",
   "scripts": {
     "start": "node server.js"
   },
