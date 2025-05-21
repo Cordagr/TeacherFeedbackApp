@@ -1,8 +1,8 @@
 {
-  "name": "TeacherFeedbackApplicatio.api",
+  "name": "TeacherFeedbackApplication.api",
   "version": "1.0.0",
   "main": "server.js",
-  "type": "common.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node server.js"
   },
@@ -12,6 +12,9 @@
     "dotenv": "^16.5.0",
     "cors": "^2.8.5",
     "body-parser": "^1.20.2",
-    "firebase-admin": "^11.10.1"
+    "firebase-admin": "^11.10.1",
+    "redis": "^4.7.1",
+    "socket.io": "^4.8.1",
+    "@sendgrid/mail": "^8.1.5"
   }
 }
