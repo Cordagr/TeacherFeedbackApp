@@ -10,7 +10,7 @@ const classroomRouter = express.Router();
 const fs = require('fs');
 // Firebase imports - choose one approach:
 // OPTION 1: CommonJS approach
-const { db } = require('../../src/firebase');
+const { db } = require('../firebase');
 // OPTION 2: ES Module approach (would require converting entire file to use import/export)
 // import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 // import { db } from '../../src/firebase';
