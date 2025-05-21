@@ -40,7 +40,20 @@ const classroomSessionSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  announcements:
+  [
+  {
+    announcement: String,
+    timestamp: {type:Date, default: Date.now}
   }
+],
+  studentEmails:
+  [
+    {
+    emails: String,
+    }
+  ]
 });
 
 const ClassroomSession = mongoose.model('ClassroomSession', classroomSessionSchema);

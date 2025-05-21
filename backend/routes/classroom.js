@@ -1,17 +1,21 @@
 const express = require('express');
 const Classroom = require('../models/classroom');
 const ClassroomSession = require('../models/classroomSession');
-const cron = require('node-cron')
+const cron = require('node-cron');
 const crypto = require('crypto');
-const sgMail = require('@sendgrid/mail')
+const sgMail = require('@sendgrid/mail');
 const multer = require('multer');
 const path = require('path');
 const classroomRouter = express.Router();
 const fs = require('fs');
-
+// Firebase imports - choose one approach:
+// OPTION 1: CommonJS approach
+const { db } = require('../../src/firebase');
+// OPTION 2: ES Module approach (would require converting entire file to use import/export)
+// import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+// import { db } from '../../src/firebase';
 
 const generateInviteCode = () => crypto.randomBytes(4).toString('hex');
-
 
 const uploadsDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -28,7 +32,6 @@ const storage = multer.diskStorage({
     cb(null, uniqueName);
   }
 });
-
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'application/pdf') {
@@ -65,7 +68,6 @@ classroomRouter.post('/createClassroom', async (req, res) => {
     res.status(400).json({ error: 'Failed to create classroom' });
   }
 });
-
 
 classroomRouter.post('/joinClassroom', async (req, res) => {
   const { email, inviteCode } = req.body;
@@ -106,7 +108,6 @@ classroomRouter.get('/getStudentClassrooms/:email', async(req,res) => {
   }
 });
 
-
 classroomRouter.get('/getTeacherClassrooms/:email', async(req,res) => {
   const { email } = req.params;
   try {
@@ -118,10 +119,21 @@ classroomRouter.get('/getTeacherClassrooms/:email', async(req,res) => {
   }
 });
 
+async function fetchAllStudents(classroomId) {
+  try {
+    const classroom = await Classroom.findOne({ inviteCode: classroomId });
+    if (!classroom) {
+      throw new Error('Classroom not found');
+    }
+    return classroom.students;
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    throw error;
+  }
+}
 
 
 classroomRouter.post('/createClassroomSession', async(req,res) => {
-  
   const { inviteCode, sessionDate, endTime, durationMinutes, notes } = req.body;
   try {
     const classroom = await Classroom.findOne({ inviteCode });
@@ -131,21 +143,28 @@ classroomRouter.post('/createClassroomSession', async(req,res) => {
 
     const classroomId = inviteCode;
 
+    // Fetch students for the classroom
+    const students = await fetchAllStudents(classroomId);
+    
+    
+    const studentEmailObjects = students.map(email => ({ email }));
+    
     const classroomSession = new ClassroomSession({
       classroomId,
       sessionDate: new Date(sessionDate),
       endTime: endTime ? new Date(endTime) : null,
       durationMinutes: durationMinutes || 60,
       notes: notes || '',
-      isOpen: false 
+      isOpen: false,
+      studentEmails: studentEmailObjects
     });
 
     await classroomSession.save();
-
+  
     res.status(200).json({ message: 'Classroom session created successfully', classroomSession });
   } catch (error) {
     console.error('Error creating classroom session:', error);
-    res.status(400).json({ error: 'Failed to create classroom session' });
+    res.status(400).json({ error: 'Failed to create classroom session', details: error.message });
   }
 });
 
@@ -161,26 +180,23 @@ classroomRouter.get('/getClassroomSessions/:classroomId', async(req,res) => {
   }
 });
 
-
-
-classroomRouter.get('/getStudentsInClassroom/:classroomId', async(req,res) => 
-{
-  const {inviteCode} = req.params;
-  students = 0 
+classroomRouter.get('/getStudentsInClassroom/:classroomId', async(req,res) => {
+  const { classroomId } = req.params;
   try {
-    const classroom = await Classroom.findOne({ inviteCode });
+    const classroom = await Classroom.findOne({ inviteCode: classroomId });
     if (!classroom) {
       return res.status(404).json({ error: 'Classroom not found' });
     }
-    // TODO: Edit logic need to parse students from classroom emails // 
+    
     const students = classroom.students;
-  }catch (err) {
+    res.status(200).json({ students });
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch students' });
   }
-})
+});
  
-// Feedback anonymous route // 
+// Feedback anonymous route
 classroomRouter.post('/postAnonymousFeedback', async (req, res) => {
   const { classroomId, feedback } = req.body;
   try {
@@ -202,7 +218,6 @@ classroomRouter.post('/postAnonymousFeedback', async (req, res) => {
     res.status(500).json({ error: 'Failed to record feedback' });
   }
 });
-
 
 classroomRouter.post('/attachTeacherAttachment', upload.single('attachment'), async (req, res) => {
   const { classroomId } = req.body;
@@ -233,16 +248,65 @@ classroomRouter.post('/attachTeacherAttachment', upload.single('attachment'), as
   }
 });
 
+// Convert to CommonJS style
+const addNotification = async (studentId, message) => {
+  try {
+    // Using CommonJS approach with require
+    const { collection, addDoc, serverTimestamp } = require('firebase/firestore');
+    const notifRef = collection(db, 'students', studentId, 'notifications');
+    await addDoc(notifRef, {
+      message,
+      read: false,
+      createdAt: serverTimestamp(),
+    });
+    console.log('Notification sent');
+  } catch (err) {
+    console.error('Error adding notification:', err);
+  }
+};
+
+// Implementing sending notification as a teacher to students specifically
+classroomRouter.post('/postAnnouncement', async(req, res) => {
+  const { classroomId, message } = req.body;
+  if(!classroomId) {
+    return res.status(400).json({error: "No required classroom identifier provided"});
+  }
+  
+  try {
+    const classroomSession = await ClassroomSession.findOne({classroomId, isOpen: true}); 
+    
+    if(!classroomSession) {
+      return res.status(404).json({error: 'Classroom session is closed or does not exist'});
+    }
+    
+    if(!classroomSession.announcements) {
+      classroomSession.announcements = [];
+    }
+    
+    classroomSession.announcements.push({
+      message,
+      timestamp: new Date()
+    });
+    
+    await classroomSession.save();
+    
+    // Send notifications to students
+    await addNotification(classroomId, message);
+    
+    res.status(200).json({ message: 'Announcement posted successfully', classroomSession });
+  } catch(error) {
+    console.error('Error posting announcement', error);
+    res.status(500).json({ error: 'Failed to post announcement' });
+  }
+});
 
 cron.schedule('* * * * *', async () => {
   const now = new Date();
 
- 
   await ClassroomSession.updateMany(
     { isOpen: false, sessionDate: { $lte: now } },
     { isOpen: true }
   );
-
 
   await ClassroomSession.updateMany(
     { isOpen: true, endTime: { $lte: now } },
@@ -252,9 +316,8 @@ cron.schedule('* * * * *', async () => {
   console.log(`[CRON] Session statuses updated at ${now.toISOString()}`);
 });
 
-// TODO: Automatic live chat during open sessions // 
-// TODO: Implement categorization of labels attachments //
-// TODO: Implement notification system for students and teachers thruough email // 
-
+// TODO: Automatic live chat during open sessions
+// TODO: Implement categorization of labels attachments
+// TODO: Implement notification system for students and teachers through email
 
 module.exports = classroomRouter;
