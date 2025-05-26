@@ -42,8 +42,8 @@ const SignIn = () => {
           const email = currentUser.email;
   
           const [studentRes, teacherRes] = await Promise.all([
-            fetch(`http://localhost:3002/api/userProfile/getUserProfileStatus/${email}`),
-            fetch(`http://localhost:3002/api/userProfile/getTeacherUserProfileStatus/${email}`)
+            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/userProfile/getUserProfileStatus/${email}`),
+            fetch(`${process.env.REACT_APP_BACKEND_URL}/api/userProfile/getTeacherUserProfileStatus/${email}`)
           ]);
   
           const studentData = await studentRes.json();

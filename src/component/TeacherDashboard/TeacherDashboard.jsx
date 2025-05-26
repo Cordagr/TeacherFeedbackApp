@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
@@ -234,7 +233,7 @@ const TeacherDashboard = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3002/api/teacherActions/createClassroomSession', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/teacherActions/createClassroomSession`, {
         inviteCode: selectedClassroom.inviteCode,
         sessionDate,
         endTime,
@@ -267,7 +266,7 @@ const TeacherDashboard = () => {
 
   const fetchClassroomSessions = async (classroomId) => {
     try {
-      const response = await axios.get(`http://localhost:3002/api/teacherActions/getClassroomSessions/${classroomId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/teacherActions/getClassroomSessions/${classroomId}`);
       setClassSessions(prev => ({
         ...prev,
         [classroomId]: response.data
@@ -287,7 +286,7 @@ const TeacherDashboard = () => {
   const fetchTeacherClasses = async () => {
     if (user?.email) {
       try {
-        const response = await axios.get(`http://localhost:3002/api/teacherActions/getTeacherClassrooms/${user.email}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/teacherActions/getTeacherClassrooms/${user.email}`);
         setTeacherClasses(response.data);
         
         // fetching sessions for each classroom
@@ -349,7 +348,7 @@ const TeacherDashboard = () => {
       formData.append('classroomId', selectedClassroom.inviteCode);
 
       const response = await axios.post(
-        'http://localhost:3002/api/teacherActions/attachTeacherAttachment', 
+        `${process.env.REACT_APP_BACKEND_URL}/api/teacherActions/attachTeacherAttachment`, 
         formData, 
         {
           headers: {

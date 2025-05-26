@@ -148,7 +148,8 @@ export default function CollegeFields() {
 
     try {
       // Save to MongoDB backend
-      await axios.post("http://localhost:3002/api/userProfile/registerTeacherUserProfile", teacher);
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/userProfile/registerTeacherUserProfile`, teacher);
+
 
       // Optional: also save to Firebase or Firestore
       addUser(teacher);
