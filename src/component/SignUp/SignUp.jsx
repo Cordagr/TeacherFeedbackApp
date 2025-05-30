@@ -28,26 +28,26 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = e => {
+    const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
 
   const handleSignUp = async e => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Create the user with Firebase authentication
       const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
       
-      // Prepare the user data for Firestore
       const userInfo = {
+        uid: userCredential.user.uid,
         email: form.email,
-        type: 'student', // Add any other fields you need here (e.g., user type, name, etc.)
-        // Add additional data as required
+        type: 'student',
+        createdAt: new Date().toISOString(),
       };
 
-      // Add the user to Firestore
-      await addUser(userInfo);
+      // using setDoc to add the user to Firestore
+      await setDoc(doc(db, 'users', userCredential.user.uid), userInfo);
 
       toast({
         title: "Account created!",
@@ -59,9 +59,9 @@ const SignUp = () => {
         variant: "subtle",
       });
       
-      // Redirect to the dashboard or home page after successful signup
-      navigate('/dashboard'); // Change this to where you want the user to go after signup
+      navigate('/dashboard');
     } catch (error) {
+      console.error('Signup error:', error);
       toast({
         title: "Signup failed.",
         description: error.message,
