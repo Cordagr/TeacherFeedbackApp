@@ -49,7 +49,7 @@ const SignUp = () => {
       };
 
       // using setDoc to add the user to Firestore
-      await setDoc(doc(db, 'users', userCredential.user.uid), userInfo);
+      await addUser(userInfo);
 
       toast({
         title: "Account created!",
