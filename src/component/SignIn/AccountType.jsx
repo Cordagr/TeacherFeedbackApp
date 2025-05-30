@@ -9,8 +9,8 @@ import {
 import { FaUserGraduate } from 'react-icons/fa';
 import { SiHive } from 'react-icons/si';
 import { ActionButton } from './ActionButton';
-import { StudentFields } from './StudentFields';
-import { CollegeFields } from './CollegeFields';
+import StudentFields from './StudentFields';
+import  CollegeFields  from './CollegeFields';
 
 const AccountType = () => {
   const [page, setPage] = useState(1); // 1: Select, 2: Student, 3: Teacher
