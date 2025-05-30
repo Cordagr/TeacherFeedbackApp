@@ -20,6 +20,8 @@ import { auth } from '../../firebase'; // adjust path as needed
 import { useNavigate } from 'react-router-dom';
 import { addUser } from '../../utils'; // Import your addUser function
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../../firebase'; // adjust path as needed
 
 const SignUp = () => {
   const toast = useToast();
