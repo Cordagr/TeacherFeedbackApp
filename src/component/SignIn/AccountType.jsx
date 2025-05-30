@@ -12,7 +12,7 @@ import { ActionButton } from './ActionButton';
 import { StudentFields } from './StudentFields';
 import { CollegeFields } from './CollegeFields';
 
-const AccountFlow = () => {
+const AccountType = () => {
   const [page, setPage] = useState(1); // 1: Select, 2: Student, 3: Teacher
 
   if (page === 2) return <StudentFields onBack={() => setPage(1)} />;
@@ -84,4 +84,4 @@ const AccountFlow = () => {
   );
 };
 
-export default AccountFlow;
+export default AccountType;
