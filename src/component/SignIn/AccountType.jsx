@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { GraduationCap, Users, Calendar, Shield, Zap } from 'lucide-react';
 
-const AccountType= () => {
+const AccountTyp e= () => {
   const [selectedType, setSelectedType] = useState(null);
   
   const handlePageChange = (pageNumber) => {
