@@ -1,7 +1,38 @@
 import { useState } from 'react';
 import { GraduationCap, Users, Calendar, Shield, Zap } from 'lucide-react';
 
-const AccountType = ({ setPage }) => {
+const AccountTypeDemo = () => {
+  const [selectedType, setSelectedType] = useState(null);
+  
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber === 2) {
+      setSelectedType('student');
+    } else if (pageNumber === 3) {
+      setSelectedType('teacher');
+    }
+  };
+
+  if (selectedType) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-4">
+            {selectedType === 'teacher' ? 'Teacher' : 'Student'} Account Selected!
+          </h1>
+          <p className="text-slate-400 mb-8">
+            This would redirect to the {selectedType} registration form.
+          </p>
+          <button
+            onClick={() => setSelectedType(null)}
+            className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)' }}>
       <div className="container mx-auto px-4 py-16">
@@ -39,7 +70,7 @@ const AccountType = ({ setPage }) => {
             </ul>
             
             <button
-              onClick={() => setPage(3)}
+              onClick={() => handlePageChange(3)}
               className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 text-lg"
             >
               Create Teacher Account
@@ -66,7 +97,7 @@ const AccountType = ({ setPage }) => {
             </ul>
             
             <button
-              onClick={() => setPage(2)}
+              onClick={() => handlePageChange(2)}
               className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 text-lg"
             >
               Create Student Account
@@ -127,13 +158,13 @@ const AccountType = ({ setPage }) => {
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <button
-              onClick={() => setPage(3)}
+              onClick={() => handlePageChange(3)}
               className="px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 text-lg"
             >
               Start as Teacher
             </button>
             <button
-              onClick={() => setPage(2)}
+              onClick={() => handlePageChange(2)}
               className="px-10 py-4 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-slate-500 text-white font-semibold rounded-2xl transition-all duration-300 text-lg"
             >
               Start as Student
@@ -146,4 +177,4 @@ const AccountType = ({ setPage }) => {
   );
 };
 
-export default AccountType;
+export default AccountTypeDemo;
