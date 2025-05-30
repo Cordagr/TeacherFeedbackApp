@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Input, Button, VStack, FormLabel, Heading, useToast,
+  Box,
+  Input,
+  Button,
+  VStack,
+  FormLabel,
+  Heading,
+  useToast,
+  Text,
+  FormControl,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { auth } from '../../firebase';
@@ -44,7 +52,10 @@ const StudentReviewForm = () => {
     };
 
     try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/userProfile/registerUserProfile`, profileData);
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/userProfile/registerUserProfile`,
+        profileData
+      );
       toast({
         title: 'Profile Created',
         description: 'Your profile has been successfully registered.',
@@ -52,14 +63,13 @@ const StudentReviewForm = () => {
         duration: 3000,
         isClosable: true,
       });
-      
+
       setTimeout(() => {
         navigate('/dashboard');
       }, 2000);
-      } catch (err) {
+    } catch (err) {
       console.error('Error registering profile:', err);
       toast({
-
         title: 'Error',
         description: 'Could not submit your profile.',
         status: 'error',
@@ -70,31 +80,90 @@ const StudentReviewForm = () => {
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={10} p={6} borderWidth={1} borderRadius="xl" boxShadow="md">
-      <Heading size="lg" mb={6} textAlign="center">Complete Your Profile</Heading>
+    <Box
+      maxW="lg"
+      mx="auto"
+      mt={16}
+      p={8}
+      borderRadius="2xl"
+      boxShadow="lg"
+      bg="white"
+      border="1px solid"
+      borderColor="gray.100"
+    >
+      <Heading size="xl" mb={4} textAlign="center">
+        Complete Your Student Profile
+      </Heading>
+      <Text mb={6} fontSize="sm" color="gray.600" textAlign="center">
+        This helps us personalize your dashboard and class experience.
+      </Text>
       <form onSubmit={handleSubmit}>
-        <VStack spacing={4}>
-          <Box w="100%">
+        <VStack spacing={5}>
+          <FormControl isRequired>
             <FormLabel>First Name</FormLabel>
-            <Input name="first_name" value={formData.first_name} onChange={handleChange} required />
-          </Box>
-          <Box w="100%">
+            <Input
+              name="first_name"
+              placeholder="Enter your first name"
+              value={formData.first_name}
+              onChange={handleChange}
+              rounded="xl"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
             <FormLabel>Last Name</FormLabel>
-            <Input name="last_name" value={formData.last_name} onChange={handleChange} required />
-          </Box>
-          <Box w="100%">
+            <Input
+              name="last_name"
+              placeholder="Enter your last name"
+              value={formData.last_name}
+              onChange={handleChange}
+              rounded="xl"
+            />
+          </FormControl>
+
+          <FormControl>
             <FormLabel>Major</FormLabel>
-            <Input name="major" value={formData.major} onChange={handleChange} />
-          </Box>
-          <Box w="100%">
+            <Input
+              name="major"
+              placeholder="e.g., Computer Science"
+              value={formData.major}
+              onChange={handleChange}
+              rounded="xl"
+            />
+          </FormControl>
+
+          <FormControl>
             <FormLabel>Phone Number</FormLabel>
-            <Input name="phone_number" value={formData.phone_number} onChange={handleChange} />
-          </Box>
-          <Box w="100%">
+            <Input
+              name="phone_number"
+              placeholder="e.g., (123) 456-7890"
+              value={formData.phone_number}
+              onChange={handleChange}
+              rounded="xl"
+            />
+          </FormControl>
+
+          <FormControl>
             <FormLabel>Current Standing</FormLabel>
-            <Input name="current_standing" value={formData.current_standing} onChange={handleChange} />
-          </Box>
-          <Button colorScheme="teal" type="submit" w="full">Submit Profile</Button>
+            <Input
+              name="current_standing"
+              placeholder="e.g., Freshman, Sophomore"
+              value={formData.current_standing}
+              onChange={handleChange}
+              rounded="xl"
+            />
+          </FormControl>
+
+          <Button
+            colorScheme="teal"
+            size="lg"
+            w="full"
+            rounded="2xl"
+            type="submit"
+            mt={2}
+          >
+            Submit Profile
+          </Button>
         </VStack>
       </form>
     </Box>
