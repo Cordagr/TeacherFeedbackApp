@@ -31,26 +31,11 @@ const AccountType = ({ setPage }) => {
             </p>
             
             <ul className="space-y-4 mb-10">
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
-                Create unlimited classes
-              </li>
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
-                Schedule and manage sessions
-              </li>
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
-                Share resources and attachments
-              </li>
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
-                Track student attendance
-              </li>
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
-                Generate invite codes
-              </li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>Create unlimited classes</li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>Schedule and manage sessions</li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>Share resources and attachments</li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>Track student attendance</li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>Generate invite codes</li>
             </ul>
             
             <button
@@ -73,26 +58,11 @@ const AccountType = ({ setPage }) => {
             </p>
             
             <ul className="space-y-4 mb-10">
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
-                Join classes with invite codes
-              </li>
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
-                View upcoming sessions
-              </li>
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
-                Access shared resources
-              </li>
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
-                Track your progress
-              </li>
-              <li className="flex items-center text-slate-300">
-                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
-                Receive notifications
-              </li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>Join classes with invite codes</li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>View upcoming sessions</li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>Access shared resources</li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>Track your progress</li>
+              <li className="flex items-center text-slate-300"><div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>Receive notifications</li>
             </ul>
             
             <button
@@ -170,6 +140,7 @@ const AccountType = ({ setPage }) => {
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
