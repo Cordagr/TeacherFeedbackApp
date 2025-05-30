@@ -1,59 +1,13 @@
 import React, { useState } from 'react';
 import { GraduationCap, Users } from 'lucide-react';
+import StudentFields from './StudentFields';  // Adjust path as needed
+import CollegeFields from './CollegeFields';  // Adjust path as needed
 
 const AccountType = () => {
-  const [selectedType, setSelectedType] = useState(null);
+  const [page, setPage] = useState(1); // 1: selection, 2: student, 3: teacher
 
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber === 2) {
-      setSelectedType('student');
-    } else if (pageNumber === 3) {
-      setSelectedType('teacher');
-    }
-  };
-
-  if (selectedType) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#1a202c',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <h1 style={{
-            fontSize: '2.25rem',
-            fontWeight: 'bold',
-            color: '#ffffff',
-            marginBottom: '1rem',
-          }}>
-            {selectedType === 'teacher' ? 'Teacher' : 'Student'} Account Selected!
-          </h1>
-          <p style={{
-            color: '#a0aec0',
-            marginBottom: '2rem',
-          }}>
-            This would redirect to the {selectedType} registration form.
-          </p>
-          <button
-            onClick={() => setSelectedType(null)}
-            style={{
-              padding: '0.75rem 1.5rem',
-              backgroundColor: '#4a5568',
-              color: '#ffffff',
-              borderRadius: '0.5rem',
-              transition: 'background-color 0.3s ease-in-out',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (page === 2) return <StudentFields onBack={() => setPage(1)} />;
+  if (page === 3) return <CollegeFields onBack={() => setPage(1)} />;
 
   return (
     <div style={{
@@ -96,7 +50,6 @@ const AccountType = () => {
           border: '1px solid #4a5568',
           borderRadius: '1.5rem',
           padding: '2.5rem',
-          transition: 'border-color 0.3s ease-in-out',
         }}>
           <div style={{
             display: 'flex',
@@ -153,7 +106,7 @@ const AccountType = () => {
             ))}
           </ul>
           <button
-            onClick={() => handlePageChange(3)}
+            onClick={() => setPage(3)}
             style={{
               width: '100%',
               backgroundColor: '#059669',
@@ -176,7 +129,6 @@ const AccountType = () => {
           border: '1px solid #4a5568',
           borderRadius: '1.5rem',
           padding: '2.5rem',
-          transition: 'border-color 0.3s ease-in-out',
         }}>
           <div style={{
             display: 'flex',
@@ -233,7 +185,7 @@ const AccountType = () => {
             ))}
           </ul>
           <button
-            onClick={() => handlePageChange(2)}
+            onClick={() => setPage(2)}
             style={{
               width: '100%',
               backgroundColor: '#3b82f6',
