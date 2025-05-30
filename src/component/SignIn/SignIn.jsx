@@ -18,7 +18,7 @@ import {
 import { signInWithEmailAndPassword as firebaseSignIn, onAuthStateChanged } from 'firebase/auth';
 import { auth, signInWithGoogle } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
-import { AccountType } from '../SignIn/AccountType';
+import AccountType from '../SignIn/AccountType';
 import { LoginFields } from '../SignIn/LoginFields';
 import StudentReviewForm from './StudentFields';
 import CollegeFields from './CollegeFields';
