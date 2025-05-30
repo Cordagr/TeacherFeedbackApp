@@ -1,10 +1,23 @@
-import { Box, SimpleGrid, useColorModeValue, Text, VStack } from '@chakra-ui/react';
-import * as React from 'react';
+import React, { useState } from 'react';
+import {
+  Box,
+  SimpleGrid,
+  useColorModeValue,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { FaUserGraduate } from 'react-icons/fa';
 import { SiHive } from 'react-icons/si';
 import { ActionButton } from './ActionButton';
+import { StudentFields } from './StudentFields';
+import { CollegeFields } from './CollegeFields';
 
-export const AccountType = ({ setPage }) => {
+const AccountFlow = () => {
+  const [page, setPage] = useState(1); // 1: Select, 2: Student, 3: Teacher
+
+  if (page === 2) return <StudentFields onBack={() => setPage(1)} />;
+  if (page === 3) return <CollegeFields onBack={() => setPage(1)} />;
+
   return (
     <Box
       as="section"
@@ -70,3 +83,5 @@ export const AccountType = ({ setPage }) => {
     </Box>
   );
 };
+
+export default AccountFlow;
