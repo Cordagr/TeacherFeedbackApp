@@ -1,187 +1,170 @@
 import { useState } from 'react';
-import { GraduationCap, Users, Calendar, Shield, Zap, BookOpen, UserCheck, MessageCircle, BarChart3, Star, Clock, Target } from 'lucide-react';
+import { GraduationCap, Users, Calendar, Shield, Zap } from 'lucide-react';
 
 const AccountType = ({ setPage }) => {
-  const [hoveredCard, setHoveredCard] = useState(null);
-
   return (
-    <div className="min-h-screen bg-gray-900" style={{ backgroundColor: '#0a0e1a' }}>
-      {/* Main Content */}
-      <div className="container mx-auto px-6 py-20">
+    <div className="min-h-screen bg-slate-900" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)' }}>
+      <div className="container mx-auto px-4 py-16">
+        
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h1 className="text-5xl font-bold text-white mb-6 tracking-tight">
             Choose Your Account Type
           </h1>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-slate-400 font-light">
             Select the option that best describes your role
           </p>
         </div>
 
-        {/* Account Type Cards */}
-        <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto mb-24">
+        {/* Main Cards */}
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 mb-20">
+          
           {/* Teacher Card */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setHoveredCard('teacher')}
-            onMouseLeave={() => setHoveredCard(null)}
-          >
-            <div className="bg-gray-800 border border-gray-700 rounded-2xl p-8 h-full transition-all duration-300 hover:border-emerald-500/50 hover:shadow-2xl hover:shadow-emerald-500/10">
-              {/* Icon */}
-              <div className="w-16 h-16 bg-gray-700 rounded-xl flex items-center justify-center mb-6">
-                <Users className="w-8 h-8 text-emerald-400" />
-              </div>
-
-              {/* Title */}
-              <h3 className="text-2xl font-bold text-white mb-3">I'm a Teacher</h3>
-              <p className="text-gray-400 mb-8 leading-relaxed">
-                Create and manage classes, share resources, and track student progress
-              </p>
-
-              {/* Features List */}
-              <div className="space-y-4 mb-10">
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Create unlimited classes</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Schedule and manage sessions</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Share resources and attachments</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Track student attendance</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Generate invite codes</span>
-                </div>
-              </div>
-
-              {/* Button */}
-              <button
-                onClick={() => setPage(3)}
-                className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25"
-              >
-                Create Teacher Account
-              </button>
+          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-10 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/10 group">
+            <div className="flex items-center justify-center w-20 h-20 bg-emerald-500/10 rounded-2xl mb-8 group-hover:bg-emerald-500/20 transition-colors">
+              <Users className="w-10 h-10 text-emerald-400" />
             </div>
+            
+            <h2 className="text-3xl font-bold text-white mb-4">I'm a Teacher</h2>
+            <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+              Create and manage classes, share resources, and track student progress
+            </p>
+            
+            <ul className="space-y-4 mb-10">
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
+                Create unlimited classes
+              </li>
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
+                Schedule and manage sessions
+              </li>
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
+                Share resources and attachments
+              </li>
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
+                Track student attendance
+              </li>
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-4"></div>
+                Generate invite codes
+              </li>
+            </ul>
+            
+            <button
+              onClick={() => setPage(3)}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 text-lg"
+            >
+              Create Teacher Account
+            </button>
           </div>
 
           {/* Student Card */}
-          <div
-            className="relative group"
-            onMouseEnter={() => setHoveredCard('student')}
-            onMouseLeave={() => setHoveredCard(null)}
-          >
-            <div className="bg-gray-800 border border-gray-700 rounded-2xl p-8 h-full transition-all duration-300 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/10">
-              {/* Icon */}
-              <div className="w-16 h-16 bg-gray-700 rounded-xl flex items-center justify-center mb-6">
-                <GraduationCap className="w-8 h-8 text-blue-400" />
-              </div>
-
-              {/* Title */}
-              <h3 className="text-2xl font-bold text-white mb-3">I'm a Student</h3>
-              <p className="text-gray-400 mb-8 leading-relaxed">
-                Join classes, attend sessions, and access learning resources
-              </p>
-
-              {/* Features List */}
-              <div className="space-y-4 mb-10">
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Join classes with invite codes</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
-                  <span className="text-sm">View upcoming sessions</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Access shared resources</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Track your progress</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
-                  <span className="text-sm">Receive notifications</span>
-                </div>
-              </div>
-
-              {/* Button */}
-              <button
-                onClick={() => setPage(2)}
-                className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25"
-              >
-                Create Student Account
-              </button>
+          <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-10 hover:border-blue-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 group">
+            <div className="flex items-center justify-center w-20 h-20 bg-blue-500/10 rounded-2xl mb-8 group-hover:bg-blue-500/20 transition-colors">
+              <GraduationCap className="w-10 h-10 text-blue-400" />
             </div>
+            
+            <h2 className="text-3xl font-bold text-white mb-4">I'm a Student</h2>
+            <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+              Join classes, attend sessions, and access learning resources
+            </p>
+            
+            <ul className="space-y-4 mb-10">
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                Join classes with invite codes
+              </li>
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                View upcoming sessions
+              </li>
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                Access shared resources
+              </li>
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                Track your progress
+              </li>
+              <li className="flex items-center text-slate-300">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
+                Receive notifications
+              </li>
+            </ul>
+            
+            <button
+              onClick={() => setPage(2)}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 text-lg"
+            >
+              Create Student Account
+            </button>
           </div>
         </div>
 
-        {/* Why Choose EduConnect Section */}
+        {/* Why Choose EduConnect */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-white mb-4">Why Choose EduConnect?</h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <h2 className="text-4xl font-bold text-white mb-6">Why Choose EduConnect?</h2>
+          <p className="text-xl text-slate-400 font-light">
             Powerful features designed for modern education
           </p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-20">
+        {/* Features */}
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-12 mb-20">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gray-800 border border-gray-700 rounded-xl flex items-center justify-center mx-auto mb-6">
-              <Calendar className="w-8 h-8 text-gray-400" />
+            <div className="flex items-center justify-center w-16 h-16 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl mx-auto mb-6">
+              <Calendar className="w-8 h-8 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Smart Scheduling</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <h3 className="text-2xl font-bold text-white mb-4">Smart Scheduling</h3>
+            <p className="text-slate-400 leading-relaxed">
               Intelligent scheduling system that works around everyone's availability
             </p>
           </div>
-
+          
           <div className="text-center">
-            <div className="w-16 h-16 bg-gray-800 border border-gray-700 rounded-xl flex items-center justify-center mx-auto mb-6">
-              <Shield className="w-8 h-8 text-gray-400" />
+            <div className="flex items-center justify-center w-16 h-16 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl mx-auto mb-6">
+              <Shield className="w-8 h-8 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Secure & Private</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <h3 className="text-2xl font-bold text-white mb-4">Secure & Private</h3>
+            <p className="text-slate-400 leading-relaxed">
               Enterprise-grade security to protect your data and privacy
             </p>
           </div>
-
+          
           <div className="text-center">
-            <div className="w-16 h-16 bg-gray-800 border border-gray-700 rounded-xl flex items-center justify-center mx-auto mb-6">
-              <Zap className="w-8 h-8 text-gray-400" />
+            <div className="flex items-center justify-center w-16 h-16 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl mx-auto mb-6">
+              <Zap className="w-8 h-8 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Lightning Fast</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <h3 className="text-2xl font-bold text-white mb-4">Lightning Fast</h3>
+            <p className="text-slate-400 leading-relaxed">
               Optimized performance for seamless learning experiences
             </p>
           </div>
         </div>
 
-        {/* Ready to Get Started Section */}
-        <div className="bg-gradient-to-r from-teal-600 to-teal-700 rounded-2xl p-12 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
-          <p className="text-teal-100 text-lg mb-8 max-w-2xl mx-auto">
+        {/* CTA Section */}
+        <div 
+          className="bg-gradient-to-r from-slate-800/80 to-slate-700/80 backdrop-blur-sm border border-slate-600/30 rounded-3xl p-12 text-center"
+          style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}
+        >
+          <h2 className="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
+          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
             Join thousands of educators and students already using EduConnect
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <button
               onClick={() => setPage(3)}
-              className="px-8 py-3 bg-white text-teal-700 font-semibold rounded-lg transition-all duration-300 hover:bg-gray-100"
+              className="px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 text-lg"
             >
               Start as Teacher
             </button>
             <button
               onClick={() => setPage(2)}
-              className="px-8 py-3 bg-transparent border-2 border-white text-white font-semibold rounded-lg transition-all duration-300 hover:bg-white hover:text-teal-700"
+              className="px-10 py-4 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-slate-500 text-white font-semibold rounded-2xl transition-all duration-300 text-lg"
             >
               Start as Student
             </button>
