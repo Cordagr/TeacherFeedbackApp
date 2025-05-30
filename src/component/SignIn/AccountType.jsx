@@ -10,10 +10,14 @@ import { FaUserGraduate } from 'react-icons/fa';
 import { SiHive } from 'react-icons/si';
 import { ActionButton } from './ActionButton';
 import StudentFields from './StudentFields';
-import  CollegeFields  from './CollegeFields';
+import CollegeFields from './CollegeFields';
 
 const AccountType = () => {
   const [page, setPage] = useState(1); // 1: Select, 2: Student, 3: Teacher
+
+  // ✅ Always call hooks at the top level
+  const sectionBg = useColorModeValue('gray.50', 'gray.800');
+  const cardBg = useColorModeValue('white', 'gray.700');
 
   if (page === 2) return <StudentFields onBack={() => setPage(1)} />;
   if (page === 3) return <CollegeFields onBack={() => setPage(1)} />;
@@ -22,7 +26,7 @@ const AccountType = () => {
     <Box
       as="section"
       position="static"
-      bg={useColorModeValue('gray.50', 'gray.800')}
+      bg={sectionBg}
       py="67"
       px={{ base: '4', md: '200px' }}
     >
@@ -36,7 +40,7 @@ const AccountType = () => {
       >
         {/* Student Section */}
         <Box
-          bg={useColorModeValue('white', 'gray.700')}
+          bg={cardBg}
           py="8"
           px="10"
           shadow="base"
@@ -59,7 +63,7 @@ const AccountType = () => {
 
         {/* Teacher Section */}
         <Box
-          bg={useColorModeValue('white', 'gray.700')}
+          bg={cardBg}
           py="8"
           px="10"
           shadow="base"
