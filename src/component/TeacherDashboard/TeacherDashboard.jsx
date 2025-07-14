@@ -165,7 +165,7 @@ const TeacherDashboard = () => {
     const meetingTimes = `${formatTime(meetingStartTime)} - ${formatTime(meetingEndTime)}`;
 
     try {
-      const response = await axios.post('http://localhost:3002/api/teacherActions/createClassroom', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/teacherActions/createClassroom`, {
         teacherName: user.displayName || 'Teacher',
         ownerTeacherEmail: user.email,
         className: className,
