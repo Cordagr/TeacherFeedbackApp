@@ -39,6 +39,11 @@ router.post('/getTeacherClassrooms/:email', (req, res) =>
 res.json({ message: 'Fetching Teacher Classrooms' });
 })
 
+// Placeholder for postAnonymousFeedback route
+router.post('/postAnonymousFeedback', (req, res) => {
+    res.json({ message: 'Anonymous feedback endpoint (placeholder)' });
+});
+
 
 // Export the router to be used in server.js
 module.exports = router;
