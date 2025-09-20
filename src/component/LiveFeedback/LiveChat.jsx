@@ -24,6 +24,8 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [connected, setConnected] = useState(false);
+  const [submission, setSubmission] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [user] = useAuthState(auth);
   const messagesEndRef = useRef(null);
 
@@ -98,7 +100,8 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
       message: newMessage,
       user: user?.email || 'Anonymous',
       role: userRole,
-      timestamp: new Date()
+      timestamp: new Date(),
+      type: 'chat'
     };
 
     try {
@@ -108,7 +111,7 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(messageData)
+          body: JSON.stringify({ ...messageData, classroomId: sessionId })
         }
       );
 
@@ -119,6 +122,38 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
       }
     } catch (error) {
       console.error('Error sending message:', error);
+    }
+  };
+
+  // Submission logic
+  const handleSendSubmission = async () => {
+    if (!submission.trim() || !connected) return;
+    setIsSubmitting(true);
+    const submissionData = {
+      sessionId,
+      message: submission,
+      user: user?.email || 'Anonymous',
+      role: userRole,
+      timestamp: new Date(),
+      type: 'submission'
+    };
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3002'}/api/teacherActions/sendMessage`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...submissionData, classroomId: sessionId })
+        }
+      );
+      if (response.ok) {
+        socket.emit('sendMessage', submissionData);
+        setSubmission('');
+      }
+    } catch (error) {
+      console.error('Error sending submission:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -210,6 +245,26 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
                       {message.announcement || message.message}
                     </Text>
                   </Box>
+                ) : message.type === 'submission' ? (
+                  <Box
+                    bg="teal.900"
+                    p={3}
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor="teal.400"
+                  >
+                    <HStack>
+                      <Badge colorScheme="teal" variant="solid" fontSize="xs">
+                        SUBMISSION
+                      </Badge>
+                      <Text color="gray.300" fontSize="xs">
+                        {formatTimestamp(message.timestamp)}
+                      </Text>
+                    </HStack>
+                    <Text color="white" mt={2} fontWeight="semibold">
+                      {message.message}
+                    </Text>
+                  </Box>
                 ) : (
                   <HStack align="start" spacing={3}>
                     <Avatar 
@@ -252,32 +307,62 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
 
       {/* Message Input */}
       <Box p={4} borderTop="1px solid" borderColor="gray.600">
-        <InputGroup>
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
-            bg="gray.700"
-            borderColor="gray.600"
-            color="white"
-            _placeholder={{ color: 'gray.400' }}
-            _hover={{ borderColor: 'teal.500' }}
-            _focus={{ borderColor: 'teal.500', boxShadow: '0 0 0 1px teal' }}
-            disabled={!connected}
-          />
-          <InputRightElement>
-            <Button
-              size="sm"
-              colorScheme="teal"
-              onClick={handleSendMessage}
-              disabled={!connected || !newMessage.trim()}
-              leftIcon={<BiSend />}
-            >
-              Send
-            </Button>
-          </InputRightElement>
-        </InputGroup>
+        <VStack spacing={3} align="stretch">
+          <InputGroup>
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type a message..."
+              bg="gray.700"
+              borderColor="gray.600"
+              color="white"
+              _placeholder={{ color: 'gray.400' }}
+              _hover={{ borderColor: 'teal.500' }}
+              _focus={{ borderColor: 'teal.500', boxShadow: '0 0 0 1px teal' }}
+              disabled={!connected}
+            />
+            <InputRightElement>
+              <Button
+                size="sm"
+                colorScheme="teal"
+                onClick={handleSendMessage}
+                disabled={!connected || !newMessage.trim()}
+                leftIcon={<BiSend />}
+              >
+                Send
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+          {/* Submission input */}
+          <InputGroup>
+            <Input
+              value={submission}
+              onChange={(e) => setSubmission(e.target.value)}
+              placeholder="Post a feedback submission..."
+              bg="gray.700"
+              borderColor="gray.600"
+              color="white"
+              _placeholder={{ color: 'gray.400' }}
+              _hover={{ borderColor: 'teal.400' }}
+              _focus={{ borderColor: 'teal.400', boxShadow: '0 0 0 1px teal' }}
+              disabled={!connected || isSubmitting}
+              maxLength={500}
+            />
+            <InputRightElement>
+              <Button
+                size="sm"
+                colorScheme="teal"
+                onClick={handleSendSubmission}
+                isLoading={isSubmitting}
+                loadingText="Posting..."
+                disabled={!connected || !submission.trim() || isSubmitting}
+              >
+                Submit
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+        </VStack>
       </Box>
     </Box>
   );

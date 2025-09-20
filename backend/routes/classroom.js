@@ -236,7 +236,7 @@ classroomRouter.post('/postAnonymousFeedback', async (req, res) => {
 
 // Real-time chat message route
 classroomRouter.post('/sendMessage', async (req, res) => {
-  const { classroomId, message, user, role } = req.body;
+  const { classroomId, message, user, role, type } = req.body;
   try {
     const session = await ClassroomSession.findOne({ classroomId, isOpen: true });
     if (!session) {
@@ -251,7 +251,8 @@ classroomRouter.post('/sendMessage', async (req, res) => {
       message,
       user,
       role: role || 'student',
-      timestamp: new Date()
+      timestamp: new Date(),
+      type: type || 'chat'
     };
 
     session.messages.push(messageData);
