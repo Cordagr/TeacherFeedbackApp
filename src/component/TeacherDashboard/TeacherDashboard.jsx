@@ -395,6 +395,11 @@ const TeacherDashboard = () => {
     }));
   };
 
+  // Get the active tab for a classroom, defaulting to 'upcoming'
+  const getActiveTab = (classroomCode) => {
+    return activeTab[classroomCode] || 'upcoming';
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
@@ -509,9 +514,9 @@ const TeacherDashboard = () => {
                         textAlign="center" 
                         py={2} 
                         cursor="pointer"
-                        borderBottom={activeTab[classroom.inviteCode] === 'upcoming' ? "2px solid" : "none"}
+                        borderBottom={getActiveTab(classroom.inviteCode) === 'upcoming' ? "2px solid" : "none"}
                         borderColor="teal.500"
-                        color={activeTab[classroom.inviteCode] === 'upcoming' ? "white" : "gray.400"}
+                        color={getActiveTab(classroom.inviteCode) === 'upcoming' ? "white" : "gray.400"}
                         onClick={() => handleTabChange(classroom.inviteCode, 'upcoming')}
                         fontSize="sm"
                       >
@@ -522,9 +527,9 @@ const TeacherDashboard = () => {
                         textAlign="center" 
                         py={2} 
                         cursor="pointer"
-                        borderBottom={activeTab[classroom.inviteCode] === 'live' ? "2px solid" : "none"}
+                        borderBottom={getActiveTab(classroom.inviteCode) === 'live' ? "2px solid" : "none"}
                         borderColor="teal.500"
-                        color={activeTab[classroom.inviteCode] === 'live' ? "white" : "gray.400"}
+                        color={getActiveTab(classroom.inviteCode) === 'live' ? "white" : "gray.400"}
                         onClick={() => handleTabChange(classroom.inviteCode, 'live')}
                         fontSize="sm"
                       >
@@ -535,9 +540,9 @@ const TeacherDashboard = () => {
                         textAlign="center" 
                         py={2} 
                         cursor="pointer"
-                        borderBottom={activeTab[classroom.inviteCode] === 'past' ? "2px solid" : "none"}
+                        borderBottom={getActiveTab(classroom.inviteCode) === 'past' ? "2px solid" : "none"}
                         borderColor="teal.500"
-                        color={activeTab[classroom.inviteCode] === 'past' ? "white" : "gray.400"}
+                        color={getActiveTab(classroom.inviteCode) === 'past' ? "white" : "gray.400"}
                         onClick={() => handleTabChange(classroom.inviteCode, 'past')}
                         fontSize="sm"
                       >
@@ -546,7 +551,7 @@ const TeacherDashboard = () => {
                     </Flex>
 
                     {/* Live Tab Content */}
-                    {activeTab[classroom.inviteCode] === 'live' && (
+                    {getActiveTab(classroom.inviteCode) === 'live' && (
                       <Box p={4} height="400px">
                         <Grid templateColumns="1fr 1fr" gap={4} height="100%">
                           <GridItem>
@@ -560,7 +565,7 @@ const TeacherDashboard = () => {
                     )}
 
                     {/* Sessions List */}
-                    {(activeTab[classroom.inviteCode] === 'upcoming' || activeTab[classroom.inviteCode] === 'past') && (
+                    {(getActiveTab(classroom.inviteCode) === 'upcoming' || getActiveTab(classroom.inviteCode) === 'past') && (
                       <Box maxH="280px" overflowY="auto">
                       {classSessions[classroom.inviteCode] && classSessions[classroom.inviteCode].length > 0 ? (
                         classSessions[classroom.inviteCode].map((session) => (
@@ -608,14 +613,14 @@ const TeacherDashboard = () => {
                         ))
                       ) : (
                         <Box p={4} textAlign="center" color="gray.500">
-                          No {activeTab[classroom.inviteCode]} sessions scheduled
+                          No {getActiveTab(classroom.inviteCode)} sessions scheduled
                         </Box>
                       )}
                       </Box>
                     )}
                     
                     {/* Create Session Button */}
-                    {(activeTab[classroom.inviteCode] === 'upcoming' || activeTab[classroom.inviteCode] === 'past') && (
+                    {(getActiveTab(classroom.inviteCode) === 'upcoming' || getActiveTab(classroom.inviteCode) === 'past') && (
                       <Box p={3} borderTop="1px solid" borderColor="gray.700">
                         <Button
                           size="sm"
