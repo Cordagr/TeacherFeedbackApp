@@ -56,7 +56,7 @@ const ClassDashboard = () => {
       const email = user.email;
       
       const response = await axios.get(
-        `http://localhost:3002/api/studentActions/getStudentClassrooms/${email}`
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3002'}/api/studentActions/getStudentClassrooms/${email}`
       );
       
       setClassrooms(response.data);
@@ -106,7 +106,7 @@ const ClassDashboard = () => {
       const email = user.email;
       
       await axios.post(
-        'http://localhost:3002/api/studentActions/joinClassroom',
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3002'}/api/studentActions/joinClassroom`,
         {
           email,
           inviteCode
