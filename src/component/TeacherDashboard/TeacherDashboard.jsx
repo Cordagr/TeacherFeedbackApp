@@ -34,12 +34,16 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
 import { FiBookOpen, FiUser, FiSearch, FiLogOut, FiCalendar, FiPlus, FiPaperclip, FiFile } from 'react-icons/fi';
 import axios from 'axios';
 import { auth } from '../../firebase';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import LiveFeedback from '../LiveFeedback/LiveFeedback';
+import LiveChat from '../LiveFeedback/LiveChat';
 
 const TeacherDashboard = () => {
   
@@ -509,8 +513,22 @@ const TeacherDashboard = () => {
                         borderColor="teal.500"
                         color={activeTab[classroom.inviteCode] === 'upcoming' ? "white" : "gray.400"}
                         onClick={() => handleTabChange(classroom.inviteCode, 'upcoming')}
+                        fontSize="sm"
                       >
-                        Upcoming Sessions
+                        Sessions
+                      </Box>
+                      <Box 
+                        flex="1" 
+                        textAlign="center" 
+                        py={2} 
+                        cursor="pointer"
+                        borderBottom={activeTab[classroom.inviteCode] === 'live' ? "2px solid" : "none"}
+                        borderColor="teal.500"
+                        color={activeTab[classroom.inviteCode] === 'live' ? "white" : "gray.400"}
+                        onClick={() => handleTabChange(classroom.inviteCode, 'live')}
+                        fontSize="sm"
+                      >
+                        Live
                       </Box>
                       <Box 
                         flex="1" 
@@ -521,13 +539,29 @@ const TeacherDashboard = () => {
                         borderColor="teal.500"
                         color={activeTab[classroom.inviteCode] === 'past' ? "white" : "gray.400"}
                         onClick={() => handleTabChange(classroom.inviteCode, 'past')}
+                        fontSize="sm"
                       >
-                        Past Sessions
+                        Past
                       </Box>
                     </Flex>
 
+                    {/* Live Tab Content */}
+                    {activeTab[classroom.inviteCode] === 'live' && (
+                      <Box p={4} height="400px">
+                        <Grid templateColumns="1fr 1fr" gap={4} height="100%">
+                          <GridItem>
+                            <LiveFeedback sessionId={classroom.inviteCode} userRole="teacher" />
+                          </GridItem>
+                          <GridItem>
+                            <LiveChat sessionId={classroom.inviteCode} userRole="teacher" />
+                          </GridItem>
+                        </Grid>
+                      </Box>
+                    )}
+
                     {/* Sessions List */}
-                    <Box maxH="280px" overflowY="auto">
+                    {(activeTab[classroom.inviteCode] === 'upcoming' || activeTab[classroom.inviteCode] === 'past') && (
+                      <Box maxH="280px" overflowY="auto">
                       {classSessions[classroom.inviteCode] && classSessions[classroom.inviteCode].length > 0 ? (
                         classSessions[classroom.inviteCode].map((session) => (
                           <Box 
@@ -577,20 +611,23 @@ const TeacherDashboard = () => {
                           No {activeTab[classroom.inviteCode]} sessions scheduled
                         </Box>
                       )}
-                    </Box>
+                      </Box>
+                    )}
                     
                     {/* Create Session Button */}
-                    <Box p={3} borderTop="1px solid" borderColor="gray.700">
-                      <Button
-                        size="sm"
-                        width="full"
-                        colorScheme="teal"
-                        leftIcon={<FiCalendar />}
-                        onClick={() => openCreateSessionModal(classroom)}
-                      >
-                        Create Session
-                      </Button>
-                    </Box>
+                    {(activeTab[classroom.inviteCode] === 'upcoming' || activeTab[classroom.inviteCode] === 'past') && (
+                      <Box p={3} borderTop="1px solid" borderColor="gray.700">
+                        <Button
+                          size="sm"
+                          width="full"
+                          colorScheme="teal"
+                          leftIcon={<FiCalendar />}
+                          onClick={() => openCreateSessionModal(classroom)}
+                        >
+                          Create Session
+                        </Button>
+                      </Box>
+                    )}
                   </Box>
                 </Box>
               ))}

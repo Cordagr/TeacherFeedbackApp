@@ -20,6 +20,9 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+// Make io available to routes
+app.set('io', io);
+
 // Connect to MongoDB using environment variable
 connectDB(process.env.DB_URI); // Use DB_URI from .env file
 
@@ -44,9 +47,68 @@ app.use('/api/studentActions', studentActionsRouter);
 const sgMail = require('@sendgrid/mail')
 // sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
 
+  // Handle joining a classroom session
+  socket.on('joinSession', (sessionId) => {
+    socket.join(sessionId);
+    console.log(`Client ${socket.id} joined session ${sessionId}`);
+  });
 
-// Connect Redis using environment variables
+  // Handle leaving a classroom session
+  socket.on('leaveSession', (sessionId) => {
+    socket.leave(sessionId);
+    console.log(`Client ${socket.id} left session ${sessionId}`);
+  });
+
+  // Handle real-time feedback submission
+  socket.on('submitFeedback', (data) => {
+    const { sessionId, feedback, user, timestamp } = data;
+    // Broadcast feedback to all clients in the session
+    io.to(sessionId).emit('newFeedback', {
+      feedback,
+      user,
+      timestamp: timestamp || new Date(),
+      id: Date.now() + Math.random()
+    });
+    console.log(`Feedback submitted to session ${sessionId}:`, feedback);
+  });
+
+  // Handle real-time chat messages
+  socket.on('sendMessage', (data) => {
+    const { sessionId, message, user, timestamp, role } = data;
+    // Broadcast message to all clients in the session
+    io.to(sessionId).emit('newMessage', {
+      message,
+      user,
+      role,
+      timestamp: timestamp || new Date(),
+      id: Date.now() + Math.random()
+    });
+    console.log(`Message sent to session ${sessionId}:`, message);
+  });
+
+  // Handle teacher announcements
+  socket.on('sendAnnouncement', (data) => {
+    const { sessionId, announcement, user, timestamp } = data;
+    // Broadcast announcement to all clients in the session
+    io.to(sessionId).emit('newAnnouncement', {
+      announcement,
+      user,
+      timestamp: timestamp || new Date(),
+      id: Date.now() + Math.random()
+    });
+    console.log(`Announcement sent to session ${sessionId}:`, announcement);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+
+// Connect Redis using environment variables (optional for scaling)
 //const redisPublisher = createClient({
   //url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
 //});
@@ -58,11 +120,6 @@ const sgMail = require('@sendgrid/mail')
   //await redisPublisher.connect();
   //await redisSubscriber.connect();
 //})();
-
-//redisSubscriber.subscribe('feedback', (message) => {
-  //const parsed = JSON.parse(message);
-  //io.emit('new-feedback', parsed); // Push to connected frontends
-//});
 
 // Listen on a dynamic port (use PORT from .env file or default to 3001)
 const port = process.env.PORT || 3002;

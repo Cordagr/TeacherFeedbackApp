@@ -139,13 +139,8 @@ const ClassDashboard = () => {
   };
 
   const handleSubmitFeedbackClick = (classroomId) => {
-    toast({
-      title: 'Feature coming soon',
-      description: 'Feedback submission will be available in the next update',
-      status: 'info',
-      duration: 3000,
-      isClosable: true,
-    });
+    // Navigate to live feedback for this classroom
+    window.location.href = `/live-session/${classroomId}`;
   };
 
   const handleBackToDashboard = () => {

@@ -44,10 +44,25 @@ const classroomSessionSchema = new mongoose.Schema({
   announcements:
   [
   {
-    announcement: String,
+    message: String,
     timestamp: {type:Date, default: Date.now}
   }
 ],
+  feedback: [
+    {
+      feedback: String,
+      user: String,
+      timestamp: { type: Date, default: Date.now }
+    }
+  ],
+  messages: [
+    {
+      message: String,
+      user: String,
+      role: { type: String, enum: ['student', 'teacher'], default: 'student' },
+      timestamp: { type: Date, default: Date.now }
+    }
+  ],
   studentEmails:
   [
     {
