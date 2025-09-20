@@ -324,14 +324,14 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
               _placeholder={{ color: 'gray.400' }}
               _hover={{ borderColor: 'teal.500' }}
               _focus={{ borderColor: 'teal.500', boxShadow: '0 0 0 1px teal' }}
-              disabled={!user}
+              // ...existing code...
             />
             <InputRightElement>
               <Button
                 size="sm"
                 colorScheme="teal"
                 onClick={handleSendMessage}
-                disabled={!user || !newMessage.trim()}
+                disabled={!newMessage.trim()}
                 leftIcon={<BiSend />}
               >
                 Send
@@ -350,7 +350,7 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
               _placeholder={{ color: 'gray.400' }}
               _hover={{ borderColor: 'teal.400' }}
               _focus={{ borderColor: 'teal.400', boxShadow: '0 0 0 1px teal' }}
-              disabled={!user || isSubmitting}
+              disabled={isSubmitting}
               maxLength={500}
             />
             <InputRightElement>
@@ -360,7 +360,7 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
                 onClick={handleSendSubmission}
                 isLoading={isSubmitting}
                 loadingText="Posting..."
-                disabled={!user || !submission.trim() || isSubmitting}
+                disabled={!submission.trim() || isSubmitting}
               >
                 Submit
               </Button>
