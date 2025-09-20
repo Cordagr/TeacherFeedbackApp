@@ -212,7 +212,7 @@ const ClassDashboard = () => {
                 {classroom.classTitle}
               </Heading>
               <Badge colorScheme="teal" p={2} borderRadius="md">
-                Teacher: {classroom.teacherName}
+                Instructor: {classroom.teacherName || 'Not Assigned'}
               </Badge>
             </Stack>
             <Text fontSize="md" color="gray.400" mb={4}>
