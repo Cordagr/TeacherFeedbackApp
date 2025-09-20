@@ -187,6 +187,9 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
       height="500px"
       display="flex"
       flexDirection="column"
+      minHeight="400px"
+      maxHeight="500px"
+      overflow="hidden"
     >
       {/* Header */}
       <Flex justify="space-between" align="center" p={4} borderBottom="1px solid" borderColor="gray.600">
@@ -204,6 +207,7 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
         flex="1" 
         overflowY="auto" 
         p={4}
+        minHeight="0"
         css={{
           '&::-webkit-scrollbar': {
             width: '4px',
@@ -306,8 +310,8 @@ const LiveChat = ({ sessionId, userRole = 'student' }) => {
       </Box>
 
       {/* Message Input */}
-      <Box p={4} borderTop="1px solid" borderColor="gray.600">
-        <VStack spacing={3} align="stretch">
+      <Box p={4} borderTop="1px solid" borderColor="gray.600" bg="gray.800" zIndex={1}>
+        <VStack spacing={3} align="stretch" mb={0}>
           <InputGroup>
             <Input
               value={newMessage}
