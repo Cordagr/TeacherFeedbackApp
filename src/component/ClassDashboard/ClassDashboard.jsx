@@ -31,6 +31,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ClassDashboard = () => {
   const [classrooms, setClassrooms] = useState([]);
+  const [sessions, setSessions] = useState({});
   const [loading, setLoading] = useState(true);
   const [inviteCode, setInviteCode] = useState('');
   const [joiningClass, setJoiningClass] = useState(false);
@@ -46,20 +47,27 @@ const ClassDashboard = () => {
     try {
       const auth = getAuth();
       const user = auth.currentUser;
-      
       if (!user) {
         console.log('No user logged in');
         setLoading(false);
         return;
       }
-      
       const email = user.email;
-      
       const response = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3002'}/api/studentActions/getStudentClassrooms/${email}`
       );
-      
       setClassrooms(response.data);
+      // Fetch sessions for each classroom
+      const sessionsObj = {};
+      await Promise.all(response.data.map(async (classroom) => {
+        try {
+          const sessionRes = await axios.get(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3002'}/api/teacherActions/getClassroomSessions/${classroom.inviteCode}`);
+          sessionsObj[classroom._id] = sessionRes.data;
+        } catch (err) {
+          sessionsObj[classroom._id] = [];
+        }
+      }));
+      setSessions(sessionsObj);
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch classrooms', error);
@@ -207,13 +215,25 @@ const ClassDashboard = () => {
                 Teacher: {classroom.teacherName}
               </Badge>
             </Stack>
-            
             <Text fontSize="md" color="gray.400" mb={4}>
               {classroom.description || "No class description available"}
             </Text>
-            
             <Divider my={4} borderColor="gray.600" />
-            
+            {/* Show sessions for this classroom */}
+            <Box mb={4}>
+              <Heading size="sm" mb={2}>Sessions</Heading>
+              {sessions[classroom._id] && sessions[classroom._id].length > 0 ? (
+                sessions[classroom._id].map((session) => (
+                  <Box key={session._id} p={3} mb={2} borderWidth="1px" borderColor="gray.700" borderRadius="md" bg="gray.800">
+                    <Text fontSize="sm" color="teal.300">Session Date: {new Date(session.sessionDate).toLocaleString()}</Text>
+                    <Text fontSize="sm" color="gray.300">Notes: {session.notes || 'No notes'}</Text>
+                    <Text fontSize="sm" color="gray.400">Feedback count: {session.feedback ? session.feedback.length : 0}</Text>
+                  </Box>
+                ))
+              ) : (
+                <Text color="gray.500">No sessions available for this class.</Text>
+              )}
+            </Box>
             <Flex justify="space-between" align="center">
               <Text>How was your experience in this class?</Text>
               <Button 
