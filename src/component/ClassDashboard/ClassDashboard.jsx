@@ -32,6 +32,9 @@ import { useNavigate } from 'react-router-dom';
 const ClassDashboard = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [sessions, setSessions] = useState({});
+  const [feedbackModal, setFeedbackModal] = useState({ open: false, classroom: null, session: null });
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [inviteCode, setInviteCode] = useState('');
   const [joiningClass, setJoiningClass] = useState(false);
@@ -146,9 +149,42 @@ const ClassDashboard = () => {
     }
   };
 
-  const handleSubmitFeedbackClick = (classroomId) => {
-    // Navigate to live feedback for this classroom
-    window.location.href = `/live-session/${classroomId}`;
+  const handleSubmitFeedbackClick = (classroomId, sessionId) => {
+    setFeedbackModal({ open: true, classroom: classroomId, session: sessionId });
+    setFeedbackText('');
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!feedbackText.trim()) return;
+    setFeedbackLoading(true);
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3002'}/api/teacherActions/postAnonymousFeedback`,
+        {
+          classroomId: feedbackModal.classroom,
+          feedback: feedbackText,
+          user: 'Anonymous',
+        }
+      );
+      toast({
+        title: 'Feedback submitted',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      setFeedbackModal({ open: false, classroom: null, session: null });
+      setFeedbackText('');
+      fetchClassrooms();
+    } catch (error) {
+      toast({
+        title: 'Error submitting feedback',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setFeedbackLoading(false);
+    }
   };
 
   const handleBackToDashboard = () => {
@@ -228,21 +264,43 @@ const ClassDashboard = () => {
                     <Text fontSize="sm" color="teal.300">Session Date: {new Date(session.sessionDate).toLocaleString()}</Text>
                     <Text fontSize="sm" color="gray.300">Notes: {session.notes || 'No notes'}</Text>
                     <Text fontSize="sm" color="gray.400">Feedback count: {session.feedback ? session.feedback.length : 0}</Text>
+                    <Button mt={2} size="sm" colorScheme="teal" onClick={() => handleSubmitFeedbackClick(classroom.inviteCode, session._id)}>
+                      Submit Feedback
+                    </Button>
                   </Box>
                 ))
               ) : (
                 <Text color="gray.500">No sessions available for this class.</Text>
               )}
             </Box>
-            <Flex justify="space-between" align="center">
-              <Text>How was your experience in this class?</Text>
-              <Button 
-                colorScheme="teal" 
-                onClick={() => handleSubmitFeedbackClick(classroom._id)}
-              >
-                Submit Feedback
-              </Button>
-            </Flex>
+      {/* Feedback Modal */}
+      <Modal isOpen={feedbackModal.open} onClose={() => setFeedbackModal({ open: false, classroom: null, session: null })} isCentered>
+        <ModalOverlay />
+        <ModalContent bg="gray.900" color="white">
+          <ModalHeader>Submit Feedback</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel>Feedback</FormLabel>
+              <Input
+                placeholder="Enter your feedback"
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                bg="gray.800"
+                borderColor="gray.600"
+                _hover={{ borderColor: "teal.500" }}
+                _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px teal.500" }}
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="teal" mr={3} onClick={handleFeedbackSubmit} isLoading={feedbackLoading} disabled={!feedbackText.trim()}>
+              Submit
+            </Button>
+            <Button variant="ghost" onClick={() => setFeedbackModal({ open: false, classroom: null, session: null })}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
           </Box>
         ))}
       </VStack>
